@@ -19,25 +19,13 @@
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Iterator;
- 
-import org.deidentifier.arx.ARXAnonymizer;
-import org.deidentifier.arx.ARXConfiguration;
-import org.deidentifier.arx.ARXResult;
+
 import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.AttributeType.Hierarchy;
-import org.deidentifier.arx.AttributeType.Hierarchy.DefaultHierarchy;
-import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
-import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased.Order;
+
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataType;
-import org.deidentifier.arx.criteria.EntropyLDiversity;
-import org.deidentifier.arx.criteria.HierarchicalDistanceTCloseness;
-import org.deidentifier.arx.criteria.RecursiveCLDiversity;
-import org.deidentifier.arx.criteria.KAnonymity;
-import org.deidentifier.arx.criteria.AverageReidentificationRisk;
-import org.deidentifier.arx.metric.Metric;
+
  
 /**
  * This class implements an example on how to use the API by providing CSV files
