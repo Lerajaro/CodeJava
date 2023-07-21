@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "p:\\CodeJava\\lib\\libarx-3.9.1.jar"
+    ],
+    "maven.view": "hierarchical"
+}

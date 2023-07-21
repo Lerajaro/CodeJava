@@ -1,0 +1,224 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ICD10CodeHierarchy",
+            "request": "launch",
+            "mainClass": "ICD10CodeHierarchy",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example18",
+            "request": "launch",
+            "mainClass": "Example18",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZfKDRiskEstimate",
+            "request": "launch",
+            "mainClass": "ZfKDRiskEstimate",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZfKDAnonymize",
+            "request": "launch",
+            "mainClass": "ZfKDAnonymize",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example13",
+            "request": "launch",
+            "mainClass": "Example13",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "getHierarchyDisease",
+            "request": "launch",
+            "mainClass": "getHierarchyDisease",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example60",
+            "request": "launch",
+            "mainClass": "Example60",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example35",
+            "request": "launch",
+            "mainClass": "Example35",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example47",
+            "request": "launch",
+            "mainClass": "Example47",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example43",
+            "request": "launch",
+            "mainClass": "Example43",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example45",
+            "request": "launch",
+            "mainClass": "Example45",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example29",
+            "request": "launch",
+            "mainClass": "Example29",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example28",
+            "request": "launch",
+            "mainClass": "Example28",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example27",
+            "request": "launch",
+            "mainClass": "Example27",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example24",
+            "request": "launch",
+            "mainClass": "Example24",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example22",
+            "request": "launch",
+            "mainClass": "Example22",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example21",
+            "request": "launch",
+            "mainClass": "Example21",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example19",
+            "request": "launch",
+            "mainClass": "Example19",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example2",
+            "request": "launch",
+            "mainClass": "Example2",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example8",
+            "request": "launch",
+            "mainClass": "Example8",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example17",
+            "request": "launch",
+            "mainClass": "Example17",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example16",
+            "request": "launch",
+            "mainClass": "Example16",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example1",
+            "request": "launch",
+            "mainClass": "examples.Example1",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Example1",
+            "request": "launch",
+            "mainClass": "Example1",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZfKD2",
+            "request": "launch",
+            "mainClass": "ZfKD2",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZIPCodeHierarchyGenerator",
+            "request": "launch",
+            "mainClass": "ZIPCodeHierarchyGenerator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZIPCodeTransformator",
+            "request": "launch",
+            "mainClass": "ZIPCodeTransformator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "AgeCalculatorCSV",
+            "request": "launch",
+            "mainClass": "AgeCalculatorCSV",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "HelloWorld",
+            "request": "launch",
+            "mainClass": "HelloWorld",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "ZfKD",
+            "request": "launch",
+            "mainClass": "ZfKD",
+            "projectName": "CodeJava_7437463e"
+        }
+    ]
+}

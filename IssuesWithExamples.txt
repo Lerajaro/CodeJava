@@ -1,0 +1,20 @@
+Always comment out the "package org.deidentifier.arx.examples;" line
+
+Example 1: 
+
+Example 8: Why do i need a hierarchy for a sensitive Attribute? 
+    If my plan is to leave sensitive attributes as they are, i dont need to generalize them. 
+    In the example they also dont get generalized as a result, so the hierarchy is for nothing.
+
+Example 18: Good to adapt to different date-time-formats.
+Example 21: Good for settings on csv-input file.
+Example 22: l-diversity finally makes sensitive attributes work!
+Example 24: create Hierarchy on the run (e.g. no need to have all possible zip-codes in a csv-file anymore)
+Example 27: data cleaning during the anonymization process. 
+Example 29: This class implements an example of how to perform risk analyses with the API
+Example 43: combined risk metrics
+
+how to set a hierarchy of quasi-identifiers in ARX, as to which QI's should be generalized first, and which
+
+
+Show the input data as it is at the moment as array of arrays --> print(data.getHandle());
