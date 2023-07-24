@@ -56,7 +56,7 @@ public class ZfKDAnonymize extends Example {
 
         // Define available hierarchies  ICD10CodeHierarchy.redactionBasedHierarchy(getStringListFromData(data)
 
-        data.getDefinition().setAttributeType("Age", Hierarchy.create("arx-master/arx-master/data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
+        data.getDefinition().setAttributeType("Age", Hierarchy.create("data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
         data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("raff-hierarchies/raff_hierarchy_gender.csv", StandardCharsets.UTF_8, ';'));
         // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("raff-hierarchies/raff_hierarchy_zipcode.csv", StandardCharsets.UTF_8, ';'));
 

@@ -47,7 +47,7 @@ public class ZfKDRiskEstimate extends Example {
         Data data = Data.create("test-data/zfkd_+_synthetic_rows_11001.csv", StandardCharsets.UTF_8, ',');
 
         // Define available hierarchies
-        data.getDefinition().setAttributeType("Age", Hierarchy.create("arx-master/arx-master/data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
+        data.getDefinition().setAttributeType("Age", Hierarchy.create("data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
         data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("raff-hierarchies/raff_hierarchy_gender.csv", StandardCharsets.UTF_8, ';'));
         data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("raff-hierarchies/raff_hierarchy_zipcode.csv", StandardCharsets.UTF_8, ';'));
                   
