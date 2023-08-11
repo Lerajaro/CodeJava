@@ -7,6 +7,7 @@ public class CSVFileManager {
     private static final String FILE_EXTENSION = ".csv";
 
     public static String getNewFileName() {
+        System.out.println("Now inside CSVFileManager.java");
         File directory = new File(FILE_DIRECTORY);
         String[] existingFiles = directory.list();
 

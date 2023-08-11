@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Example50",
+            "request": "launch",
+            "mainClass": "Example50",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "ICD10CodeHierarchy",
             "request": "launch",
             "mainClass": "ICD10CodeHierarchy",

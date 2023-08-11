@@ -52,7 +52,7 @@ public class ZfKDAnonymize extends Example {
     */
     public static void main(String[] args) throws IOException {
          
-        Data data = Data.create("test-data/zfkd_+_synthetic_rows_1000.csv", StandardCharsets.UTF_8, ',');
+        Data data = Data.create("test-data/zfkd_+_synthetic_rows_1545.csv", StandardCharsets.UTF_8, ',');
 
         // Define available hierarchies  ICD10CodeHierarchy.redactionBasedHierarchy(getStringListFromData(data)
 
@@ -75,9 +75,9 @@ public class ZfKDAnonymize extends Example {
         
         // Sensitive Attributes: These should remain unaltered but be subject to privacy models.
         data.getDefinition().setAttributeType("Diagnose_ICD10_Code", AttributeType.SENSITIVE_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Anzahl_Tage_Diagnose_Tod", AttributeType.SENSITIVE_ATTRIBUTE);
+        // data.getDefinition().setAttributeType("Anzahl_Tage_Diagnose_Tod", AttributeType.SENSITIVE_ATTRIBUTE);
         data.getDefinition().setDataType("Diagnose_ICD10_Code", DataType.STRING);
-        data.getDefinition().setDataType("Anzahl_Tage_Diagnose_Tod", DataType.DECIMAL);
+        // data.getDefinition().setDataType("Anzahl_Tage_Diagnose_Tod", DataType.DECIMAL);
          
         // Perform risk analysis --> this calls RiskAnalysis.java (Example 29)
         System.out.println("\n - Input data");
@@ -93,7 +93,7 @@ public class ZfKDAnonymize extends Example {
         config.addPrivacyModel(new KAnonymity(3));
         config.addPrivacyModel(new HierarchicalDistanceTCloseness("Diagnose_ICD10_Code", 0.6d, ICD10CodeHierarchy.redactionBasedHierarchy(getStringListFromData(data, "Diagnose_ICD10_Code"))));
         // config.addPrivacyModel(new HierarchicalDistanceTCloseness("Diagnose_ICD10_Code", 0.6d, getHierarchyDisease.createHierarchy()));
-        config.addPrivacyModel(new RecursiveCLDiversity("Anzahl_Tage_Diagnose_Tod", 3d, 2));
+        // config.addPrivacyModel(new RecursiveCLDiversity("Anzahl_Tage_Diagnose_Tod", 3d, 2));
         config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
         config.setSuppressionLimit(0d);
         config.setQualityModel(Metric.createEntropyMetric());       
@@ -106,7 +106,7 @@ public class ZfKDAnonymize extends Example {
 
         // Write results
         System.out.print(" - Writing data...");
-        result.getOutput(false).save("testproducts/anonymize_" + CSVFileManager.getNewFileName(), ';');
+        result.getOutput(false).save("testproducts/" + CSVFileManager.getNewFileName(), ';');
         System.out.println("Done!");
     }
     
