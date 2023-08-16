@@ -43,7 +43,11 @@ import org.deidentifier.arx.metric.Metric;
  * @author Raffael Kniep
  */
 public class ZfKDAnonymize extends Example {
-     
+    // test products will follow the naming convention: Fachruppenkürzel + "_" + Herkunft des Datensatzes + "_" + automatic count of testproducts
+    // please adapt FILE_NAME_PREFIX and DATA_PROVENIENCE to fit the Fachgruppenkürzel and Herkunft des Datensatzes.
+    private static final String FILE_PATH = "test-data/zfkd_GDC_rowcount_3500.csv";
+    private static final String FILE_NAME_PREFIX = "zfkd_";
+    private static final String DATA_PROVENIENCE = "GDC_";
     /**
      * Entry point.
      * 
@@ -52,7 +56,7 @@ public class ZfKDAnonymize extends Example {
     */
     public static void main(String[] args) throws IOException {
          
-        Data data = Data.create("test-data/zfkd_+_synthetic_rows_1545.csv", StandardCharsets.UTF_8, ',');
+        Data data = Data.create(FILE_PATH, StandardCharsets.UTF_8, ',');
 
         // Define available hierarchies  ICD10CodeHierarchy.redactionBasedHierarchy(getStringListFromData(data)
 
@@ -106,7 +110,7 @@ public class ZfKDAnonymize extends Example {
 
         // Write results
         System.out.print(" - Writing data...");
-        result.getOutput(false).save("testproducts/" + CSVFileManager.getNewFileName(), ';');
+        result.getOutput(false).save("testproducts/" + CSVFileManager.getNewFileName(FILE_NAME_PREFIX, DATA_PROVENIENCE), ';');
         System.out.println("Done!");
     }
     

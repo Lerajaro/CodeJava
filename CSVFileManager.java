@@ -3,27 +3,27 @@ import java.util.Arrays;
 
 public class CSVFileManager {
     private static final String FILE_DIRECTORY = "testproducts/";
-    private static final String FILE_NAME_PREFIX = "test_zfkd_";
+    private static final String FILE_PREFIX = "test_";
     private static final String FILE_EXTENSION = ".csv";
 
-    public static String getNewFileName() {
+    public static String getNewFileName(String fileNamePrefix, String DATA_PROVENIENCE) {
         System.out.println("Now inside CSVFileManager.java");
         File directory = new File(FILE_DIRECTORY);
         String[] existingFiles = directory.list();
-
+        String totalPrefix = FILE_PREFIX + fileNamePrefix + DATA_PROVENIENCE;
         if (existingFiles == null) {
             // The directory does not exist or is not a directory
-            return FILE_NAME_PREFIX + "1" + FILE_EXTENSION;
+            return FILE_DIRECTORY + totalPrefix + "1" + FILE_EXTENSION;
         }
 
         // Filter the existing files with the correct prefix and extension
         existingFiles = Arrays.stream(existingFiles)
-                .filter(name -> name.startsWith(FILE_NAME_PREFIX) && name.endsWith(FILE_EXTENSION))
+                .filter(name -> name.startsWith(FILE_PREFIX) && name.endsWith(FILE_EXTENSION))
                 .toArray(String[]::new);
 
         if (existingFiles.length == 0) {
             // No files with the prefix and extension found
-            return FILE_NAME_PREFIX + "1" + FILE_EXTENSION;
+            return totalPrefix + "1" + FILE_EXTENSION;
         }
 
         // Sort the existing files to get the last one
@@ -33,15 +33,17 @@ public class CSVFileManager {
         String lastFileName = existingFiles[existingFiles.length - 1];
 
         // Extract the number from the last file name
-        int lastFileNumber = Integer.parseInt(lastFileName.substring(FILE_NAME_PREFIX.length(), lastFileName.length() - FILE_EXTENSION.length()));
+        int lastFileNumber = Integer.parseInt(lastFileName.substring(totalPrefix.length(), lastFileName.length() - FILE_EXTENSION.length()));
 
         // Create and return the new file name with the next consecutive number
-        return FILE_NAME_PREFIX + (lastFileNumber + 1) + FILE_EXTENSION;
+        String newFileName = FILE_PREFIX + fileNamePrefix + DATA_PROVENIENCE + (lastFileNumber + 1) + FILE_EXTENSION;
+        System.out.println("New file name: " + newFileName);
+        return newFileName;
     }
 
     // Example of using the getNewFileName method
     public static void main(String[] args) {
-        String newFileName = getNewFileName();
-        System.out.println("New file name: " + newFileName);
+        // String newFileName = getNewFileName(args);
+        // System.out.println("New file name: " + newFileName);
     }
 }
