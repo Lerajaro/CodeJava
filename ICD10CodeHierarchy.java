@@ -48,7 +48,7 @@ public class ICD10CodeHierarchy extends Example{
         
         Hierarchy hierarchy1 = builder.build();
         // Print resulting hierarchy
-        // printArray(hierarchy1.getHierarchy());
+        //printArray(hierarchy1.getHierarchy());
         System.out.println("");
 
         return hierarchy1;

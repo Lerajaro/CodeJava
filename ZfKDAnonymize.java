@@ -19,6 +19,7 @@
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
@@ -29,7 +30,6 @@ import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.criteria.HierarchicalDistanceTCloseness;
-import org.deidentifier.arx.criteria.RecursiveCLDiversity;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.AverageReidentificationRisk;
 import org.deidentifier.arx.metric.Metric;
@@ -45,9 +45,9 @@ import org.deidentifier.arx.metric.Metric;
 public class ZfKDAnonymize extends Example {
     // test products will follow the naming convention: Fachruppenkürzel + "_" + Herkunft des Datensatzes + "_" + automatic count of testproducts
     // please adapt FILE_NAME_PREFIX and DATA_PROVENIENCE to fit the Fachgruppenkürzel and Herkunft des Datensatzes.
-    private static final String FILE_PATH = "test-data/zfkd_GDC_rowcount_3500.csv";
-    private static final String FILE_NAME_PREFIX = "zfkd_";
-    private static final String DATA_PROVENIENCE = "GDC_";
+    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_100000.csv";
+    //private static final String FILE_NAME_PREFIX = "zfkd_";
+    //private static final String DATA_PROVENIENCE = "QI_";
     /**
      * Entry point.
      * 
@@ -57,35 +57,40 @@ public class ZfKDAnonymize extends Example {
     public static void main(String[] args) throws IOException {
          
         Data data = Data.create(FILE_PATH, StandardCharsets.UTF_8, ',');
+        String[] quasiIdentifyers = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum"};
+        String[] identifyers = {};
+        String[] sensitives = {};
+        String[] insensitives = {};
 
-        // Define available hierarchies  ICD10CodeHierarchy.redactionBasedHierarchy(getStringListFromData(data)
 
-        data.getDefinition().setAttributeType("Age", Hierarchy.create("data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
-        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("raff-hierarchies/raff_hierarchy_gender.csv", StandardCharsets.UTF_8, ';'));
-        // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("raff-hierarchies/raff_hierarchy_zipcode.csv", StandardCharsets.UTF_8, ';'));
+        // Define available hierarchies  
 
-        // Create own hierarchy builder from actual values and implement it
-        data.getDefinition().setAttributeType("Inzidenzort", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
-                  
-        // Define AttributeTypes
-        // Quasi-Identifying Attributes: thes should be subject to gradual anonymization processes.
-        data.getDefinition().setAttributeType("Age", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Geschlecht", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Inzidenzort", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
+        //data.getDefinition().setAttributeType("Age", Hierarchy.create("data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
+        //data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("raff-hierarchies/raff_hierarchy_gender.csv", StandardCharsets.UTF_8, ';'));
+        //data.getDefinition().setAttributeType("Inzidenzort", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
 
-        // Identifying Attributes: these should be erased and not visible in the output
-        data.getDefinition().setAttributeType("Diagnosedatum", AttributeType.IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Verstorben", AttributeType.IDENTIFYING_ATTRIBUTE);
-        
+        // Quasi-Identifying Attributes: these will used for the risk analyisis and are subject to generalization in anonymization procedures
+        for (String quasiIdentifyer : quasiIdentifyers) {
+            data.getDefinition().setAttributeType(quasiIdentifyer, AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
+        }
+        // Identifying Attributes: these should be erased and not be visible in the output.
+        for (String identifyer : identifyers) {
+            data.getDefinition().setAttributeType(identifyer, AttributeType.IDENTIFYING_ATTRIBUTE);
+        }
         // Sensitive Attributes: These should remain unaltered but be subject to privacy models.
-        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", AttributeType.SENSITIVE_ATTRIBUTE);
-        // data.getDefinition().setAttributeType("Anzahl_Tage_Diagnose_Tod", AttributeType.SENSITIVE_ATTRIBUTE);
-        data.getDefinition().setDataType("Diagnose_ICD10_Code", DataType.STRING);
+        for (String sensitive : sensitives) {
+            data.getDefinition().setAttributeType(sensitive, AttributeType.SENSITIVE_ATTRIBUTE);
+        }
+        // Insensitive Attributes: Will remain untouched and should not be considered in risk analysis.
+        for (String insensitive : insensitives) {
+            data.getDefinition().setAttributeType(insensitive, AttributeType.INSENSITIVE_ATTRIBUTE);
+        }
+
+        // data.getDefinition().setDataType("Diagnose_ICD10_Code", DataType.STRING);
         // data.getDefinition().setDataType("Anzahl_Tage_Diagnose_Tod", DataType.DECIMAL);
          
         // Perform risk analysis --> this calls RiskAnalysis.java (Example 29)
         System.out.println("\n - Input data");
-        // print(data.getHandle());
         System.out.println("\n - Quasi-identifiers sorted by risk:");
         RiskAnalysis.analyzeAttributes(data.getHandle());
         System.out.println("\n - Risk analysis:");
@@ -103,14 +108,14 @@ public class ZfKDAnonymize extends Example {
         config.setQualityModel(Metric.createEntropyMetric());       
         
         // Execute the algorithm
-        ARXResult result = anonymizer.anonymize(data, config); 
+        //ARXResult result = anonymizer.anonymize(data, config); 
          
         // Print info
-        printResult(result, data);
+        //printResult(result, data);
 
         // Write results
         System.out.print(" - Writing data...");
-        result.getOutput(false).save("testproducts/" + CSVFileManager.getNewFileName(FILE_NAME_PREFIX, DATA_PROVENIENCE), ';');
+        //result.getOutput(false).save("testproducts/" + CSVFileManager.getNewFileName(FILE_NAME_PREFIX, DATA_PROVENIENCE), ';');
         System.out.println("Done!");
     }
     

@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "KiGGSAnonymize",
+            "request": "launch",
+            "mainClass": "KiGGSAnonymize",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "Example50",
             "request": "launch",
             "mainClass": "Example50",
