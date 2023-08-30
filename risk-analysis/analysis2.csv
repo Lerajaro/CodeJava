@@ -1,0 +1,3 @@
+Data-Prefix, Data-Size, OutputStream, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, Average-Risk, Lowest-Risk, Highest-Risk
+zfkd_, 100000_, test_zfkd_1.txt, 1, 1, 1, 1, 0, 0, 0.35309, 0.06666666666666667, 1.0
+zfkd_, 50000_, test_zfkd_2.txt, 1, 1, 2, 1, 0, 0, 0.54052, 0.1, 1.0

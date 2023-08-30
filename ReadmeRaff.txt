@@ -42,6 +42,7 @@ VSC-Shortcuts:
 select all occurences of word: select word, press ctrl+shift+l to select all
 
 Ctrl + K + Ctrl + C --> Comment in/out a whole textblock
+Ctrl + K + Ctrl + U --> Uncomment block of text
 
 
 from settings.json

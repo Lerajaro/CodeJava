@@ -58,4 +58,29 @@ public class RiskAnalysis {
         System.out.println("     - Population-based measures");
         System.out.println("       + Population unqiueness (Zayatz): " + populationUniqueness.getFractionOfUniqueTuples(PopulationUniquenessModel.ZAYATZ));
     }
+
+    public static void analyzeData2(DataHandle handle) {
+        
+        ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.USA);
+        RiskEstimateBuilder builder = handle.getRiskEstimator(populationmodel);
+        RiskModelHistogram classes = builder.getEquivalenceClassModel();
+        RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();
+        RiskModelSampleUniqueness sampleUniqueness = builder.getSampleBasedUniquenessRisk();
+        RiskModelPopulationUniqueness populationUniqueness = builder.getPopulationBasedUniquenessRisk();
+        
+        
+        System.out.println("   * Equivalence classes:");
+        System.out.println("     - Average size: " + classes.getAvgClassSize());
+        System.out.println("     - Num classes : " + classes.getNumClasses());
+
+        System.out.println("   * Risk estimates:");
+        System.out.println("     - Sample-based measures");
+        System.out.println("       + Average risk     : " + sampleReidentifiationRisk.getAverageRisk());
+        System.out.println("       + Lowest risk      : " + sampleReidentifiationRisk.getLowestRisk());
+        System.out.println("       + Tuples affected  : " + sampleReidentifiationRisk.getFractionOfRecordsAffectedByLowestRisk());
+        System.out.println("       + Highest risk     : " + sampleReidentifiationRisk.getHighestRisk());
+
+        System.out.println("     - Population-based measures");
+        System.out.println("       + Population unqiueness (Zayatz): " + populationUniqueness.getFractionOfUniqueTuples(PopulationUniquenessModel.ZAYATZ));
+    }
 }

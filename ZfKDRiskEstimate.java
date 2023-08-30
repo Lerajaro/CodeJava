@@ -1,100 +1,176 @@
-/*
-* ARX Data Anonymization Tool
-* Copyright 2012 - 2023 Fabian Prasser and contributors
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-* 
-* http://www.apache.org/licenses/LICENSE-2.0
-* 
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
-
-// package org.deidentifier.arx.examples;
-
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
+
 import org.deidentifier.arx.AttributeType;
-import org.deidentifier.arx.AttributeType.Hierarchy;
-
 import org.deidentifier.arx.Data;
-import org.deidentifier.arx.DataType;
+import org.deidentifier.arx.DataHandle;
 
- 
-/**
- * This class implements an example on how to use the API by providing CSV files
- * as input.
- *
- * @author Fabian Prasser
- * @author Florian Kohlmayer
- */
+import org.deidentifier.arx.risk.RiskModelSampleRisks;
+import org.deidentifier.arx.risk.RiskEstimateBuilder;
+import org.deidentifier.arx.ARXPopulationModel;
+import org.deidentifier.arx.ARXPopulationModel.Region;
+
 public class ZfKDRiskEstimate extends Example {
-     
-    /**
-     * Entry point.
-     * 
-     * @param args the arguments
-     * @throws IOException
-    */
+    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_50000.csv";
+    private static final String FILE_NAME_PREFIX = "zfkd_";
+    private static final String ANALYSIS_FOLDER = "risk-analysis/";
+    private static final String DATA_SIZE = "50000_";
+    private static final String[] QUASI_IDENTIFYERS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
+    private static final Integer[] QI_RESOLUTION = {1,1,1,1,0,0};
+
+    private enum AttributeCategory {
+        QUASI_IDENTIFYING, IDENTIFYING, SENSITIVE, INSENSITIVE
+    }
+
     public static void main(String[] args) throws IOException {
-         
-        Data data = Data.create("test-data/zfkd_+_synthetic_rows_11001.csv", StandardCharsets.UTF_8, ',');
-
-        // Define available hierarchies
-        data.getDefinition().setAttributeType("Age", Hierarchy.create("data/adult_hierarchy_age.csv", StandardCharsets.UTF_8, ';'));
-        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("raff-hierarchies/raff_hierarchy_gender.csv", StandardCharsets.UTF_8, ';'));
-        data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("raff-hierarchies/raff_hierarchy_zipcode.csv", StandardCharsets.UTF_8, ';'));
-                  
-        // Define AttributeTypes
-        // Quasi-Identifying Attributes: thes should be subject to gradual anonymization processes.
-        data.getDefinition().setAttributeType("Age", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Geschlecht", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Inzidenzort", AttributeType.QUASI_IDENTIFYING_ATTRIBUTE);
-
-        // Identifying Attributes: these should be erased and not visible in the output
-        data.getDefinition().setAttributeType("Diagnosedatum", AttributeType.IDENTIFYING_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Verstorben", AttributeType.IDENTIFYING_ATTRIBUTE);
-        
-        // Sensitive Attributes: These should remain unaltered but be subject to privacy models.
-        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", AttributeType.SENSITIVE_ATTRIBUTE);
-        data.getDefinition().setAttributeType("Anzahl_Tage_Diagnose_Tod", AttributeType.SENSITIVE_ATTRIBUTE);
-        data.getDefinition().setDataType("Diagnose_ICD10_Code", DataType.STRING);
-        data.getDefinition().setDataType("Anzahl_Tage_Diagnose_Tod", DataType.DECIMAL);
-         
-        // Perform risk analysis --> this calls RiskAnalysis.java (Example 29)
-        // System.out.println("\n - Input data");
-        // print(data.getHandle());
-        System.out.println("\n - Quasi-identifiers sorted by risk:");
-        RiskAnalysis.analyzeAttributes(data.getHandle());
-        System.out.println("\n - Risk analysis:");
-        RiskAnalysis.analyzeData(data.getHandle());
-
-        // // Create an instance of the anonymizer
-        // ARXAnonymizer anonymizer = new ARXAnonymizer();
-        // ARXConfiguration config = ARXConfiguration.create();
-        // config.addPrivacyModel(new KAnonymity(3));
-        // config.addPrivacyModel(new HierarchicalDistanceTCloseness("Diagnose_ICD10_Code", 0.6d, getHierarchyDisease.createHierarchy()));
-        // config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
-        // config.setSuppressionLimit(1d);
-
-        // // Anonymize
-        // ARXResult result = anonymizer.anonymize(data, config);
-
-        // Perform risk analysis
-        // System.out.println("\n - Output data");
-        // print(result.getOutput());
-        // System.out.println("\n - Risk analysis after anonymization:");
-        // RiskAnalysis.analyzeData(result.getOutput());
+        Data data = Data.create(FILE_PATH, StandardCharsets.UTF_8, ',');
+        defineAttributes(data);
+        DataHandle handle = data.getHandle();
+        // Perform risk analysis and other operations
+        ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.GERMANY);
+        RiskEstimateBuilder builder = handle.getRiskEstimator(populationmodel);
+        RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();
+        Double averageRisk = sampleReidentifiationRisk.getAverageRisk();
+        Double lowestRisk = sampleReidentifiationRisk.getLowestRisk();
+        Double highestRisk = sampleReidentifiationRisk.getHighestRisk();
 
         // Write results
-        System.out.print(" - No Writing of data, because no anonymization is being done...");
-        // result.getOutput(false).save("testproducts/riskEstimate_" + CSVFileManager.getNewFileName(), ';');
+        String outputFile = riskAnalysisManager.getNewFileName(FILE_NAME_PREFIX, DATA_SIZE);
+        // Creating a new file with detailed risk analysis
+        outputStream(data, outputFile);
+        // Writing a new line to the analysis.csv
+        csvCreator(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QUASI_IDENTIFYERS, averageRisk, lowestRisk, highestRisk);
+        csvCreator2(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QUASI_IDENTIFYERS, averageRisk, lowestRisk, highestRisk);
         System.out.println("Done!");
     }
+
+    private static String[][] defineAttributes(Data data) {
+        String[] identifyers = {};
+        String[] sensitives = {};
+        String[] insensitives = {};
+        String[][] variableTypes = {QUASI_IDENTIFYERS, identifyers, sensitives, insensitives};
+
+        for (AttributeCategory category : AttributeCategory.values()) {
+            String[] variables = variableTypes[category.ordinal()];
+            for (String variableName : variables) {
+                setAttributeType(data, variableName, category);
+            }
+        }
+        // Define hierarchies
+        
+
+        return variableTypes;
+    }
+
+    private static void setAttributeType(Data data, String variableName, AttributeCategory category) {
+        AttributeType attributeType;
+        switch (category) {
+            case QUASI_IDENTIFYING:
+                attributeType = AttributeType.QUASI_IDENTIFYING_ATTRIBUTE;
+                break;
+            case IDENTIFYING:
+                attributeType = AttributeType.IDENTIFYING_ATTRIBUTE;
+                break;
+            case SENSITIVE:
+                attributeType = AttributeType.SENSITIVE_ATTRIBUTE;
+                break;
+            case INSENSITIVE:
+                attributeType = AttributeType.INSENSITIVE_ATTRIBUTE;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid attribute category");
+        }
+        data.getDefinition().setAttributeType(variableName, attributeType);
+    }
+
+    private static void outputStream(Data data, String outputFile) {
+  
+        try {
+            // Redirect standard output
+            PrintStream originalOut = System.out;  // Store original standard output
+            
+            // Redirect standard output to a ByteArrayOutputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outputStream));
+
+            // Perform risk analysis and other operations
+            String[][] variableTypes = defineAttributes(data);
+            System.out.println("\n - Quasi-identifyers:");
+            for (String quasiIdentifyer : variableTypes[0]){
+                System.out.println(quasiIdentifyer);
+            }
+            System.out.println("\n - Risk analysis:");
+            RiskAnalysis.analyzeData2(data.getHandle());
+
+            // Restore standard output
+            System.setOut(originalOut);
+
+            // Write captured output to the file
+            try (FileWriter writer = new FileWriter(ANALYSIS_FOLDER + outputFile)) {
+                // Write output
+                writer.write(outputStream.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Other methods and constants...
+    private static void csvCreator(String dataPrefix, String dataSize, String outputStream, String[] quasiIdentifiers,
+                                      double averageRisk, double lowestRisk, double highestRisk) {
+        String outputFile = ANALYSIS_FOLDER + "analysis.csv"; // Modify this to the actual output file path
+
+        try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
+            StringBuilder line = new StringBuilder();
+            line.append(dataPrefix).append(", ")
+                .append(dataSize).append(", ")
+                .append(outputStream).append(", ");
+            
+            for (int i = 0; i < 6; i++) {
+                if (i < quasiIdentifiers.length) {
+                    line.append(quasiIdentifiers[i]);
+                }
+                line.append(", ");
+            }
+            
+            line.append(averageRisk).append(", ")
+                .append(lowestRisk).append(", ")
+                .append(highestRisk);
+
+            writer.write(line.toString() + System.lineSeparator());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    } 
+        
+    private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, String[] quasiIdentifiers,
+                                      double averageRisk, double lowestRisk, double highestRisk) {
+        String outputFile = ANALYSIS_FOLDER + "analysis2.csv"; // Modify this to the actual output file path
+
+        try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
+            StringBuilder line = new StringBuilder();
+            line.append(dataPrefix).append(", ")
+                .append(dataSize).append(", ")
+                .append(outputStream).append(", ");
+            
+            for (int i = 0; i < 6; i++) {
+                if (i < quasiIdentifiers.length) {
+                    line.append(quasiIdentifiers[i]);
+                }
+                line.append(", ");
+            }
+            
+            line.append(averageRisk).append(", ")
+                .append(lowestRisk).append(", ")
+                .append(highestRisk);
+
+            writer.write(line.toString() + System.lineSeparator());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }     
 }

@@ -1,0 +1,20 @@
+
+ - Quasi-identifyers:
+Age
+Geschlecht
+Geburtsdatum
+
+ - Risk analysis:
+   * Equivalence classes:
+     - Average size: 1.0504312020084245
+     - Num classes : 95199.0
+   * Risk estimates:
+     - Sample-based measures
+       + Average risk     : 0.9519899999999999
+       + Lowest risk      : 0.25
+       + Tuples affected  : 3.2E-4
+       + Highest risk     : 1.0
+     - Population-based measures
+       + Population unqiueness (Zayatz): 0.821079454711715
+
+ - Trying out the Risk Estimator
