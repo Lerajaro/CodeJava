@@ -1,3 +1,9 @@
+/* This class is supposed to have all the funcitonalities to take a dataset of zfkd data
+and perform risk analysis to it
+and save the results in the analysis.csv (later maybe the analysis2.csv)
+plus store the detailed results in a single file, of which the name is saved in analysis.csv
+*/
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,12 +21,12 @@ import org.deidentifier.arx.ARXPopulationModel;
 import org.deidentifier.arx.ARXPopulationModel.Region;
 
 public class ZfKDRiskEstimate extends Example {
-    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_50000.csv";
+    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_60000.csv";
     private static final String FILE_NAME_PREFIX = "zfkd_";
     private static final String ANALYSIS_FOLDER = "risk-analysis/";
-    private static final String DATA_SIZE = "50000_";
+    private static final String DATA_SIZE = "60000_";
     private static final String[] QUASI_IDENTIFYERS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
-    private static final Integer[] QI_RESOLUTION = {1,1,1,1,0,0};
+    private static final String[] QI_RESOLUTION = {"1","1","1","1","0","0"};
 
     private enum AttributeCategory {
         QUASI_IDENTIFYING, IDENTIFYING, SENSITIVE, INSENSITIVE
@@ -44,7 +50,7 @@ public class ZfKDRiskEstimate extends Example {
         outputStream(data, outputFile);
         // Writing a new line to the analysis.csv
         csvCreator(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QUASI_IDENTIFYERS, averageRisk, lowestRisk, highestRisk);
-        csvCreator2(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QUASI_IDENTIFYERS, averageRisk, lowestRisk, highestRisk);
+        csvCreator2(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QI_RESOLUTION, averageRisk, lowestRisk, highestRisk);
         System.out.println("Done!");
     }
 
@@ -61,7 +67,7 @@ public class ZfKDRiskEstimate extends Example {
             }
         }
         // Define hierarchies
-        
+
 
         return variableTypes;
     }

@@ -2,19 +2,20 @@
  - Quasi-identifyers:
 Age
 Geschlecht
+Inzidenzort
 Geburtsdatum
+Diagnose_ICD10_Code
+Diagnosedatum
 
  - Risk analysis:
    * Equivalence classes:
-     - Average size: 1.0504312020084245
-     - Num classes : 95199.0
+     - Average size: 1.0
+     - Num classes : 60000.0
    * Risk estimates:
      - Sample-based measures
-       + Average risk     : 0.9519899999999999
-       + Lowest risk      : 0.25
-       + Tuples affected  : 3.2E-4
+       + Average risk     : 1.0
+       + Lowest risk      : 1.0
+       + Tuples affected  : 1.0
        + Highest risk     : 1.0
      - Population-based measures
-       + Population unqiueness (Zayatz): 0.821079454711715
-
- - Trying out the Risk Estimator
+       + Population unqiueness (Zayatz): 1.0

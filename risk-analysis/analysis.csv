@@ -5,3 +5,6 @@ zfkd_, 100000_, test_zfkd_100000_10.txt, Age, Geschlecht, Inzidenzort, , , , 0.5
 zfkd_, 100000_, test_zfkd_100000_1.txt, Geburtsdatum, Geschlecht, Inzidenzort, , , , 0.35309, 0.06666666666666667, 1.0
 zfkd_, 50000_, test_zfkd_1.txt, Geburtsdatum, Geschlecht, Inzidenzort, , , , 0.54052, 0.1, 1.0
 zfkd_, 50000_, test_zfkd_1.txt, Age, Geburtsdatum, Geschlecht, Inzidenzort, , , 0.9747200000000001, 0.25, 1.0
+zfkd_, 70000_, test_zfkd_1.txt, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, 0.9999857142857143, 0.5, 1.0
+zfkd_, 60000_, test_zfkd_1.txt, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, 1.0, 1.0, 1.0
+zfkd_, 60000_, test_zfkd_1.txt, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, 1.0, 1.0, 1.0

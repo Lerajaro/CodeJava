@@ -53,9 +53,9 @@ import org.deidentifier.arx.metric.Metric;
 public class ZfKDAnonymize extends Example {
     // test products will follow the naming convention: Fachruppenkürzel + "_" + Herkunft des Datensatzes + "_" + automatic count of testproducts
     // please adapt FILE_NAME_PREFIX and DATA_PROVENIENCE to fit the Fachgruppenkürzel and Herkunft des Datensatzes.
-    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_100000.csv";
+    private static final String FILE_PATH = "test-data/zfkd_QI_adapted_70000.csv";
     private static final String FILE_NAME_PREFIX = "zfkd_";
-    private static final String DATA_SIZE = "100000_";
+    private static final String DATA_SIZE = "70000_";
     /**
      * Entry point.
      * 
@@ -71,19 +71,19 @@ public class ZfKDAnonymize extends Example {
         String[] insensitives = {};
         String[][] variableTypes = {quasiIdentifyers, identifyers, sensitives, insensitives};
 
-        date(data);
-        //DefaultHierarchy date = Hierarchy.create();
-
+        // HIERARCHIES
+        // Creating Hierarchies for date-variables
+        date(data, "Geburtsdatum");
+        date(data, "Diagnosedatum");
+        // Creating Hierarchies for the other variables
         data.getDefinition().setAttributeType("Age", Hierarchy.create("hierarchies2/age.csv", StandardCharsets.UTF_8, ';'));
         data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("hierarchies2/gender.csv", StandardCharsets.UTF_8, ';'));
         data.getDefinition().setAttributeType("Inzidenzort", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
-        //data.getDefinition().setAttributeType("Geburtsdatum", date);
-        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
-        data.getDefinition().setAttributeType("Diagnosedatum", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
+        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
                 
-        Hierarchy hierarchy1 = ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")).build();
-        System.out.println("Hierarchy 1 = " + hierarchy1);
-        printArray(hierarchy1.getHierarchy());
+        // Hierarchy hierarchy1 = ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")).build();
+        // System.out.println("Hierarchy 1 = " + hierarchy1);
+        // printArray(hierarchy1.getHierarchy());
 
 
         for (String[] variableType : variableTypes) {
@@ -110,8 +110,8 @@ public class ZfKDAnonymize extends Example {
          
         // Perform risk analysis --> this calls RiskAnalysis.java (Example 29)
         System.out.println("\n - Input data");
-        // System.out.println("\n - Quasi-identifiers sorted by risk:");
-        // RiskAnalysis.analyzeAttributes(data.getHandle());
+        System.out.println("\n - Quasi-identifiers sorted by risk:");
+        RiskAnalysis.analyzeAttributes(data.getHandle());
         System.out.println("\n - Risk analysis:");
         RiskAnalysis.analyzeData(data.getHandle());
         System.out.println("\n - Trying out the Risk Estimator");
@@ -179,9 +179,9 @@ public class ZfKDAnonymize extends Example {
 
     }
     
-    private static void date(Data data) {
+    private static void date(Data data, String variableNameString) {
         
-    	String stringDateFormat = "yyyy-MM-dd";
+    	String stringDateFormat = "yyyy-MM";
     	
     	DataType<Date> dateType = DataType.createDate(stringDateFormat);
     	
@@ -189,9 +189,9 @@ public class ZfKDAnonymize extends Example {
         HierarchyBuilderDate builder = HierarchyBuilderDate.create(dateType);
         
         // Define grouping
-        builder.setGranularities(new Granularity[] {Granularity.WEEK_YEAR, 
-                                                    Granularity.QUARTER_YEAR, 
-                                                    Granularity.YEAR});
+        builder.setGranularities(new Granularity[] {Granularity.QUARTER_YEAR, 
+                                                    Granularity.YEAR, 
+                                                    Granularity.DECADE});
         
         System.out.println("---------------------");
         System.out.println("DATE HIERARCHY");

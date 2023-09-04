@@ -10,7 +10,7 @@ import java.util.Set;
 public class ICD10CodeHierarchy extends Example{
 
     /**
-     * Takes a String[] as argument and creates a redaction based arx-hierarchy from the unique values and returns it. Good for e.g. ICD10-Codes
+     * Takes a String[] as argument and creates a redaction based arx-hierarchy from the unique values and returns the hierarchy. Good for e.g. ICD10-Codes
      * @author Raffael Kniep
      */
     public static Hierarchy redactionBasedHierarchy(String[] variableStrings) {
@@ -41,11 +41,11 @@ public class ICD10CodeHierarchy extends Example{
         
         
         // Print info about resulting groups
-        System.out.println("Resulting levels: "+Arrays.toString(builder.prepare(variableCodes)));
+        // System.out.println("Resulting levels: "+Arrays.toString(builder.prepare(variableCodes)));
         
         System.out.println("");
         System.out.println("RESULT");
-        
+        builder.prepare(variableCodes);
         Hierarchy hierarchy1 = builder.build();
         // Print resulting hierarchy
         //printArray(hierarchy1.getHierarchy());
@@ -54,6 +54,7 @@ public class ICD10CodeHierarchy extends Example{
         return hierarchy1;
     }
     public static HierarchyBuilder<?> redactHierarchyBuilder(String[] variableStrings) {
+        // takes a column, creates a redacted hierarchy and returns ! the builder !
         System.out.println("NOW INSIDE redactHierarchyBuilder"); 
         Set<String> uniqueCodes = new HashSet<>();
 
