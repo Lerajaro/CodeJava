@@ -55,7 +55,7 @@ public class ICD10CodeHierarchy extends Example{
     }
     public static HierarchyBuilder<?> redactHierarchyBuilder(String[] variableStrings) {
         // takes a column, creates a redacted hierarchy and returns ! the builder !
-        System.out.println("NOW INSIDE redactHierarchyBuilder"); 
+        // System.out.println("NOW INSIDE redactHierarchyBuilder"); 
         Set<String> uniqueCodes = new HashSet<>();
 
         // Loop through the input ICD-10 codes and add them to the set
