@@ -1,21 +1,20 @@
+Variable Age is now set to QUASI_IDENTIFYING
+Variable Geschlecht is now set to QUASI_IDENTIFYING
+Done
 
  - Quasi-identifyers:
 Age
 Geschlecht
-Inzidenzort
-Geburtsdatum
-Diagnose_ICD10_Code
-Diagnosedatum
 
  - Risk analysis:
    * Equivalence classes:
-     - Average size: 1.0
-     - Num classes : 60000.0
+     - Average size: 1.0031527658354829
+     - Num classes : 3489.0
    * Risk estimates:
      - Sample-based measures
-       + Average risk     : 1.0
-       + Lowest risk      : 1.0
-       + Tuples affected  : 1.0
+       + Average risk     : 0.996857142857143
+       + Lowest risk      : 0.5
+       + Tuples affected  : 0.006285714285714286
        + Highest risk     : 1.0
      - Population-based measures
-       + Population unqiueness (Zayatz): 1.0
+       + Population unqiueness (Zayatz): 0.9874681500924514

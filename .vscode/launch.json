@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ZIPCodeHierarchyGenerator",
+            "request": "launch",
+            "mainClass": "deprecated.ZIPCodeHierarchyGenerator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "RiskEstimator",
+            "request": "launch",
+            "mainClass": "RiskEstimator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Controller",
+            "request": "launch",
+            "mainClass": "Controller",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "KiGGSAnonymize",
             "request": "launch",
             "mainClass": "KiGGSAnonymize",

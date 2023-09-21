@@ -1,9 +1,9 @@
-package deprecated;
+package deprecated; 
 import java.io.*;
 
 public class ZIPCodeHierarchyGenerator {
     public static void main(String[] args) {
-        String outputFilePath = "raff_hierarchy_zipcode.csv";
+        String outputFilePath = "hierarchies2/hierarchy_zipcode.csv";
 
         try {
             generateNumberPatterns(outputFilePath);
@@ -15,24 +15,22 @@ public class ZIPCodeHierarchyGenerator {
 
     private static void generateNumberPatterns(String filePath) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            for (int num = 11111; num <= 99999; num++) {
-                String number = String.valueOf(num);
-                String pattern = generatePattern(number);
-                writer.write(number + ";" + pattern);
+            for (int num = 0; num <= 99999; num++) {
+                String number = String.format("%05d", num); // Format with leading zeros
+                String[] columns = new String[6];
+
+                for (int i = 0; i < 6; i++) {
+                    StringBuilder pattern = new StringBuilder(number);
+                    for (int j = 0; j < i; j++) {
+                        int index = number.length() - 1 - j;
+                        pattern.setCharAt(index, '*');
+                    }
+                    columns[i] = pattern.toString();
+                }
+
+                writer.write(String.join(";", columns));
                 writer.newLine();
             }
         }
-    }
-
-    private static String generatePattern(String number) {
-        StringBuilder pattern = new StringBuilder();
-
-        for (int i = number.length(); i > 0; i--) {
-            pattern.append(number.substring(0, i));
-            pattern.append("*".repeat(number.length() - i));
-            pattern.append(";");
-        }
-
-        return pattern.toString();
     }
 }
