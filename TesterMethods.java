@@ -4,14 +4,14 @@ import java.util.Map;
 public class TesterMethods {
     public static void testDefineAttributes(Data data) {
         System.out.println("Testing Define Attributes");
-        for (String attribute : Constants.QUASI_IDENTIFIER_STRINGS) {
+        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
             System.out.println("Attribute type of " + attribute + " is " + data.getDefinition().getAttributeType(attribute));
         }
     }
 
     public static void testGeneralizationSuccess(Data data) {
         System.out.println("Testing Generalizations");
-        for (String attribute : Constants.QUASI_IDENTIFIER_STRINGS) {
+        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
             System.out.println("Generalizationlevels of : "+ attribute + " are min: " + data.getDefinition().getMinimumGeneralization(attribute) + " and max: " + data.getDefinition().getMaximumGeneralization(attribute));
         }
     }
@@ -19,7 +19,7 @@ public class TesterMethods {
         // CAVE: This method will print out the whole Hierarchies in full extend line by line and therefor take very long.
         // This should only be used to specifically test a particular hierarchy, else the code will need to be interrupted with CTRL + C. 
         System.out.println("Testing Hierarchies");
-        for (String attribute : Constants.QUASI_IDENTIFIER_STRINGS) {
+        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
             System.out.println("Hierarchy for "+ attribute + " is:\n" + data.getDefinition().getHierarchy(attribute));
             for (String[] strA : data.getDefinition().getHierarchy(attribute)) {
                 for (String str : strA) {

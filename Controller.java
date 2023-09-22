@@ -7,30 +7,27 @@ import java.util.Map;
 // import java.util.Arrays;
 
 public class Controller {
-    // private static final String FILE_PATH = "test-data/zfkd_QI_adapted_50000.csv";
-    private static final String HIERARCHY_PATH = "hierarchies2/";
+    /* Main Contolling class! Everything goes from here.
+     * Always start the processing from here by running the main funtion.
+     * Beforehand, go to Constants.java and check that the FILE and FOLDER and HIERARCHY paths are correct.
+     * Also check if your choice of QUASI_IDENTIFIER_CHOICE is as desired. 
+     * Then run main.
+     */
+    private static int ITERATION_COUNT = 1;
 
-    //private static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
-    //private static final String[] QUASI_IDENTIFIER_STRINGS = {"Age", "Geschlecht"};
-
-    // private static final String[] QI_RESOLUTION = {"1","1","1","1","0","0"};
     public static void main(String[] args) throws IOException {
-        Map<String, Integer> result = CSVFileScanner(HIERARCHY_PATH); // count the number of columns in each Hierarchy-csv-file. CAVE: only works if hierarchies have the same name as QI's.
+        Map<String, Integer> result = CSVFileScanner(Constants.HIERARCHY_PATH); // count the number of columns in each Hierarchy-csv-file inside the given Hierarchypath-folder. CAVE: only works if hierarchies have the same name as QI's.
         TesterMethods.TestStringIntMaps(result);
         Map<String, Integer> reorderedResult = reorderHashMap(result); // reorder the the result and adapt the keys to fit QUASI_IDENTIFIER_STRINGS
         TesterMethods.TestStringIntMaps(reorderedResult);
 
         int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
 
-        // Arrays.fill(QI_Resolution, -1); // Replaces 0 with -1 for omitted quasi-identifiers
-
-
         int totalIterations = calculateTotalIterations(reorderedResult);
-        System.out.println("Total iterations: " + totalIterations);
-        iterateQIResolution(reorderedResult, QI_Resolution, 0); // create Iteration protocoll and calling the RiskEstimation each time.
-        System.out.println("Total iterations: " + totalIterations);
+        System.out.println("Anticipated iterations: " + totalIterations);
         
-        // RiskEstimator.RiskEstimation(QI_Resolution);
+        iterateQIResolution(reorderedResult, QI_Resolution, 0); // create Iteration protocoll and calling the RiskEstimation each time.
+        System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (ITERATION_COUNT - 1) + "\n");
     }
 
     public static Map<String, Integer> CSVFileScanner(String filePath) {
@@ -109,11 +106,11 @@ public class Controller {
          * and set that value at that index in QI_Resolution[index].
          * When all QI_Resolutions have been set, it will call the RiskEstimator with the result.
          */
-        int iterationCount = 1;
+        
         if (index == Constants.QUASI_IDENTIFIER_FULL_SET.length) {
             // Base case: All QI_Resolutions have been set, call RiskEstimator
-            System.out.println("------------------\nIterationCount = " + iterationCount + "\nnow calling callRiskEstimator\n------------------");
-            iterationCount += 1;
+            System.out.println("------------------\nIterationCount = " + ITERATION_COUNT + "\nnow calling callRiskEstimator\n------------------");
+            ITERATION_COUNT += 1;
             QI_Resolution[1] = 1; // Hard coding to avoid the error in Geschlecht
             callRiskEstimator(QI_Resolution);
             return;
@@ -122,15 +119,12 @@ public class Controller {
         String currentQuasiIdentifier = Constants.QUASI_IDENTIFIER_FULL_SET[index];
         // Determine the maximum number of iterations for the current quasi-identifier
         int maxIterations = reorderedResult.getOrDefault(currentQuasiIdentifier, 0);
-        // System.out.println("maxIterations for " + currentQuasiIdentifier + " = " + maxIterations);
 
         // Try different values for QI_Resolution at the current index
         for (int i = 0; i <= maxIterations; i++) {
             QI_Resolution[index] = i;
-            // System.out.println("QI_Resolution[" + index +"] / " + currentQuasiIdentifier +" = " + i);
             iterateQIResolution(reorderedResult, QI_Resolution, index + 1);
         }
-        System.out.println("Now through with Iterations.\nReturning to main.");
         return;
     }
 
@@ -146,7 +140,7 @@ public class Controller {
         System.out.println("}");
         try {
         // Uncomment the following line to actually call RiskEstimator with QI_Resolution
-            RiskEstimator.RiskEstimation(QI_Resolution, Constants.QUASI_IDENTIFIER_CHOICE);
+            RiskEstimator.RiskEstimation(QI_Resolution);
         } catch (IOException e) {
             // Wrap the checked exception in a runtime exception
             throw new RuntimeException("Error in RiskEstimation", e);

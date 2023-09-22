@@ -38,73 +38,47 @@ import org.deidentifier.arx.risk.RiskModelPopulationUniqueness;
 import org.deidentifier.arx.risk.RiskModelPopulationUniqueness.PopulationUniquenessModel;
 
 public class RiskEstimator extends Example {
-    //private static final String FILE_PATH = "test-data/zfkd_QI_adapted_50000.csv";
-    private static final String FOLDER_PATH = "test-data/";
-    private static final String FILE_PATH = "zfkd_GDC_rowcount_3500.csv";
-
-    private static final String FILE_NAME_PREFIX = "zfkd_";
-    private static final String ANALYSIS_FOLDER = "risk-analysis/";
-    private static final String DATA_SIZE = "50000_";
-    // private static final String[] QUASI_IDENTIFYERS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
-    // private static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
-    // public static String[] QUASI_IDENTIFIER_STRINGS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
     private static int[] QI_RESOLUTION = {0, 0, 0, 0, 0, 0};
-    // private static int[] QI_RESOLUTION = new int[6];
     
     private enum AttributeCategory {
         QUASI_IDENTIFYING, IDENTIFYING, SENSITIVE, INSENSITIVE
     }
 
     public static void main(String[] args) {
-
     }
 
-    public static void RiskEstimation(int[] qiResolution, String[] qiStrings) throws IOException {
+    public static void RiskEstimation(int[] qiResolution) throws IOException {
         try{
             QI_RESOLUTION = qiResolution;
-            Constants.QUASI_IDENTIFIER_STRINGS = qiStrings;
-            Data data = Data.create(FOLDER_PATH + FILE_PATH, StandardCharsets.UTF_8, ',');
-            System.out.println("\n Define Attributes:");
-            String[][] unknown = defineAttributes(data);
+            Data data = Data.create(Constants.FOLDER_PATH + Constants.FILE_PATH, StandardCharsets.UTF_8, ',');
+            defineAttributes(data); 
             TesterMethods.testDefineAttributes(data);
-            System.out.println("\n Set Hierarchies:");
-            setHierarchy(data);
-            // TesterMethods.testHierarchyBuildingSuccess(data);
-            System.out.println("\n Set Generalization levels:");
-            setGeneralizationLevel(data);
-            TesterMethods.testGeneralizationSuccess(data); // Print out what the generalization minimum for each attribute ist. 
-
-            
-            // System.out.println("\n - Quasi-identifiers sorted by risk:");
-            // analyzeAttributes(data.getHandle());
-            // System.out.println("\n - Risk analysis:");
-            // analyzeData(data.getHandle());
+            setHierarchy(data); // TesterMethods.testHierarchyBuildingSuccess(data);
+            setGeneralizationLevel(data); 
+            TesterMethods.testGeneralizationSuccess(data);
+            // Print out what the generalization minimum for each attribute ist. 
 
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
             ARXConfiguration config = ARXConfiguration.create();
-            // config.addPrivacyModel(new KAnonymity(3));
             
             config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
             config.setSuppressionLimit(0d);
             
-            // anonymizer.anonymize(data, config);
             ARXResult result = anonymizer.anonymize(data, config);
             result.getOutput().getRiskEstimator().getAttributeRisks();
-                    // Perform risk analysis
-            // System.out.println("\n - Risk analysis:");
-            // analyzeData(result.getOutput());
-            // Double[] risks = getRisks(data);
+            
+            // Perform risk analysis
             Double[] risks = getRisksFromHandle(result.getOutput());
 
-            // Write results
-            String outputFile = riskAnalysisManager.getNewFileName(FILE_NAME_PREFIX, DATA_SIZE);
+            // Create a new Output FileName
+            String outputFile = RiskAnalysisManager.getNewFileName();
+            System.out.println("Output Filename is: " + outputFile); // not needed, unless outputStream is being acitvated, but is buggy at the moment
             // Creating a new file with detailed risk analysis
-            outputStream(data, outputFile);
+            // outputStream(data, outputFile);
             // Writing a new line to the analysis.csv
-            // csvCreator(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QUASI_IDENTIFYERS, risks);
-            csvCreator2(FILE_NAME_PREFIX, DATA_SIZE, outputFile, QI_RESOLUTION, risks);
-            System.out.println("\nDone! Back to Controller and Iteration over QI_Resolutions\n\n----------------------------\n\n");
+            csvCreator2(Constants.FILE_NAME_PREFIX, Constants.DATA_SIZE, outputFile, QI_RESOLUTION, risks);
+            System.out.println("\nDone! Back to Controller and Iteration over QI_Resolutions\n------------------\n\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -122,7 +96,6 @@ public class RiskEstimator extends Example {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
-                System.out.println("Varible to be set now is: "+ variable);
                 if (QI_RESOLUTION[i] != 0) {
                     setAttributeType(data, variable, category);
                     System.out.println("Variable " + variable + " is now set to " + category);    
@@ -175,8 +148,8 @@ public class RiskEstimator extends Example {
     }
 
     private static void setGeneralizationLevel(Data data){
-        for (String attribute : Constants.QUASI_IDENTIFIER_STRINGS) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_STRINGS).indexOf(attribute);
+        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_CHOICE).indexOf(attribute);
 
             if (index > 0 && index < QI_RESOLUTION.length){
                 //config.setMinimumGeneralizationLevel(attribute, QI_RESOLUTION[index]);
@@ -235,7 +208,7 @@ public class RiskEstimator extends Example {
             System.setOut(originalOut);
 
             // Write captured output to the file
-            try (FileWriter writer = new FileWriter(ANALYSIS_FOLDER + outputFile)) {
+            try (FileWriter writer = new FileWriter(Constants.ANALYSIS_FOLDER + outputFile)) {
                 // Write output
                 writer.write(outputStream.toString());
             }
@@ -246,7 +219,7 @@ public class RiskEstimator extends Example {
 
     private static void csvCreator(String dataPrefix, String dataSize, String outputStream, String[] quasiIdentifiers,
                                       Double[] risks) {
-        String outputFile = ANALYSIS_FOLDER + "analysis.csv"; // Modify this to the actual output file path
+        String outputFile = Constants.ANALYSIS_FOLDER + "analysis.csv"; // Modify this to the actual output file path
 
         try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
             StringBuilder line = new StringBuilder();
@@ -276,7 +249,7 @@ public class RiskEstimator extends Example {
         
     private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, int[] quasiIdentifiers,
                                       Double[] risks) {
-        String outputFile = ANALYSIS_FOLDER + "analysis3.csv"; // Modify this to the actual output file path
+        String outputFile = Constants.ANALYSIS_FOLDER + "analysis3.csv"; // Modify this to the actual output file path
 
         try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
             StringBuilder line = new StringBuilder();
