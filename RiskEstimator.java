@@ -39,14 +39,15 @@ import org.deidentifier.arx.risk.RiskModelPopulationUniqueness.PopulationUniquen
 
 public class RiskEstimator extends Example {
     //private static final String FILE_PATH = "test-data/zfkd_QI_adapted_50000.csv";
-    private static final String FILE_PATH = "test-data/zfkd_GDC_rowcount_3500.csv";
+    private static final String FOLDER_PATH = "test-data/";
+    private static final String FILE_PATH = "zfkd_GDC_rowcount_3500.csv";
 
     private static final String FILE_NAME_PREFIX = "zfkd_";
     private static final String ANALYSIS_FOLDER = "risk-analysis/";
     private static final String DATA_SIZE = "50000_";
     // private static final String[] QUASI_IDENTIFYERS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
     // private static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
-    private static String[] QUASI_IDENTIFIER_STRINGS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
+    // public static String[] QUASI_IDENTIFIER_STRINGS = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"};
     private static int[] QI_RESOLUTION = {0, 0, 0, 0, 0, 0};
     // private static int[] QI_RESOLUTION = new int[6];
     
@@ -61,16 +62,17 @@ public class RiskEstimator extends Example {
     public static void RiskEstimation(int[] qiResolution, String[] qiStrings) throws IOException {
         try{
             QI_RESOLUTION = qiResolution;
-            QUASI_IDENTIFIER_STRINGS = qiStrings;
-            Data data = Data.create(FILE_PATH, StandardCharsets.UTF_8, ',');
+            Constants.QUASI_IDENTIFIER_STRINGS = qiStrings;
+            Data data = Data.create(FOLDER_PATH + FILE_PATH, StandardCharsets.UTF_8, ',');
             System.out.println("\n Define Attributes:");
             String[][] unknown = defineAttributes(data);
+            TesterMethods.testDefineAttributes(data);
             System.out.println("\n Set Hierarchies:");
             setHierarchy(data);
-            // testHierarchyBuildingSuccess(data);
+            // TesterMethods.testHierarchyBuildingSuccess(data);
             System.out.println("\n Set Generalization levels:");
             setGeneralizationLevel(data);
-            testGeneralizationSuccess(data); // Print out what the generalization minimum for each attribute ist. 
+            TesterMethods.testGeneralizationSuccess(data); // Print out what the generalization minimum for each attribute ist. 
 
             
             // System.out.println("\n - Quasi-identifiers sorted by risk:");
@@ -108,35 +110,19 @@ public class RiskEstimator extends Example {
         }
     }
 
-    private static void testGeneralizationSuccess(Data data) {
-        System.out.println("Testing Generalizations");
-        for (String attribute : QUASI_IDENTIFIER_STRINGS) {
-            System.out.println("Generalizationlevels of : "+ attribute + " are min: " + data.getDefinition().getMinimumGeneralization(attribute) + " and max: " + data.getDefinition().getMaximumGeneralization(attribute));
-        }
-    }
-    private static void testHierarchyBuildingSuccess(Data data) {
-        System.out.println("Testing Hierarchies");
-        for (String attribute : QUASI_IDENTIFIER_STRINGS) {
-            System.out.println("Hierarchy for "+ attribute + " is:\n" + data.getDefinition().getHierarchy(attribute));
-            for (String[] strA : data.getDefinition().getHierarchy(attribute)) {
-                for (String str : strA) {
-                    System.out.print(str + ", ");
-                }
-                System.out.println("\n");
-            }
-        }
-    }
+
 
     private static String[][] defineAttributes(Data data) {
         String[] identifyers = {};
         String[] sensitives = {};
         String[] insensitives = {};
-        String[][] variableTypes = {QUASI_IDENTIFIER_STRINGS, identifyers, sensitives, insensitives};
+        String[][] variableTypes = {Constants.QUASI_IDENTIFIER_CHOICE, identifyers, sensitives, insensitives};
 
         for (AttributeCategory category : AttributeCategory.values()) {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
+                System.out.println("Varible to be set now is: "+ variable);
                 if (QI_RESOLUTION[i] != 0) {
                     setAttributeType(data, variable, category);
                     System.out.println("Variable " + variable + " is now set to " + category);    
@@ -189,8 +175,8 @@ public class RiskEstimator extends Example {
     }
 
     private static void setGeneralizationLevel(Data data){
-        for (String attribute : QUASI_IDENTIFIER_STRINGS) {
-            int index = Arrays.asList(QUASI_IDENTIFIER_STRINGS).indexOf(attribute);
+        for (String attribute : Constants.QUASI_IDENTIFIER_STRINGS) {
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_STRINGS).indexOf(attribute);
 
             if (index > 0 && index < QI_RESOLUTION.length){
                 //config.setMinimumGeneralizationLevel(attribute, QI_RESOLUTION[index]);

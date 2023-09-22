@@ -1,10 +1,12 @@
+Varible to be set now is: Age
 Variable Age is now set to QUASI_IDENTIFYING
-Variable Geschlecht is now set to QUASI_IDENTIFYING
+Varible to be set now is: Inzidenzort
+Variable Inzidenzort is now set to QUASI_IDENTIFYING
 Done
 
  - Quasi-identifyers:
 Age
-Geschlecht
+Inzidenzort
 
  - Risk analysis:
    * Equivalence classes:

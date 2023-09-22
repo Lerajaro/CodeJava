@@ -1,3 +1,4 @@
+package deprecated;
 /*
 * ARX Data Anonymization Tool
 * Copyright 2012 - 2023 Fabian Prasser and contributors
@@ -41,6 +42,8 @@ import org.deidentifier.arx.criteria.HierarchicalDistanceTCloseness;
 import org.deidentifier.arx.criteria.KAnonymity;
 import org.deidentifier.arx.criteria.AverageReidentificationRisk;
 import org.deidentifier.arx.metric.Metric;
+
+import Example;
  
 /**
  * This class implements an example on how to import a csv file from the ZfKD with reduced variable size to:

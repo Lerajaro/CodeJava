@@ -1,3 +1,4 @@
+package deprecated;
 /* This class is supposed to have all the funcitonalities to take a dataset of zfkd data
 and perform risk analysis to it
 and save the results in the analysis.csv (later maybe the analysis2.csv)
@@ -22,6 +23,9 @@ import org.deidentifier.arx.aggregates.HierarchyBuilderDate;
 import org.deidentifier.arx.aggregates.HierarchyBuilderDate.Granularity;
 
 import org.deidentifier.arx.risk.RiskModelSampleRisks;
+
+import Example;
+
 import org.deidentifier.arx.risk.RiskEstimateBuilder;
 import org.deidentifier.arx.ARXPopulationModel;
 import org.deidentifier.arx.ARXPopulationModel.Region;
