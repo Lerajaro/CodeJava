@@ -1,0 +1,8 @@
+Data-Prefix, Data-Size, OutputStream, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, Average-Risk, Lowest-Risk, Highest-Risk
+zfkd_, 100000_, test_zfkd_1.txt, 1, 1, 1, 1, 0, 0, 0.35309, 0.06666666666666667, 1.0
+zfkd_, 50000_, test_zfkd_2.txt, 1, 1, 2, 1, 0, 0, 0.54052, 0.1, 1.0zfkd_, 70000_, test_zfkd_1.txt, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, 0.9999857142857143, 0.5, 1.0
+zfkd_, 60000_, test_zfkd_1.txt, Age, Geschlecht, Inzidenzort, Geburtsdatum, Diagnose_ICD10_Code, Diagnosedatum, 1.0, 1.0, 1.0
+zfkd_, 60000_, test_zfkd_1.txt, 1, 1, 1, 1, 0, 0, 1.0, 1.0, 1.0
+zfkd_, 60000_, test_zfkd_1.txt, 1, 1, 1, 1, 0, 0, 1.0, 1.0, 1.0
+zfkd_, 50000_, test_zfkd_1.txt, 1, 1, 1, 1, 0, 0, 0.9999800000000001, 0.5, 1.0
+zfkd_, 50000_, test_zfkd_1.txt, 5, 2, 6, 0, 0, 0, 0.9999800000000001, 0.5, 1.0

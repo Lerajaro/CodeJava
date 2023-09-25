@@ -2,7 +2,7 @@ import java.io.File;
 import java.util.Arrays;
 
 public class CSVFileManager {
-    private static final String FILE_DIRECTORY = "testproducts/";
+    private static String FILE_DIRECTORY = "testproducts/";
     private static final String FILE_PREFIX = "test_";
     private static final String FILE_EXTENSION = ".csv";
 
@@ -11,6 +11,12 @@ public class CSVFileManager {
         File directory = new File(FILE_DIRECTORY);
         String[] existingFiles = directory.list();
         String totalPrefix = FILE_PREFIX + fileNamePrefix + DATA_PROVENIENCE;
+        if (fileNamePrefix == "kiggs_") {
+            FILE_DIRECTORY = "kiggs-testproducts/";
+        }
+        if (fileNamePrefix == "zfkd_") {
+            FILE_DIRECTORY = "zfkd-testproducts/";
+        }
         if (existingFiles == null) {
             // The directory does not exist or is not a directory
             return FILE_DIRECTORY + totalPrefix + "1" + FILE_EXTENSION;
