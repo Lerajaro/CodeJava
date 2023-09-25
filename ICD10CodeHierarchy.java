@@ -1,15 +1,19 @@
+
 import org.deidentifier.arx.aggregates.HierarchyBuilder;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased.Order;
+
+
+
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.ARXConfiguration;
 
-import java.util.Arrays;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class ICD10CodeHierarchy extends Example{
+public class ICD10CodeHierarchy {
 
     /**
      * Takes a String[] as argument and creates a redaction based arx-hierarchy from the unique values and returns the hierarchy. Good for e.g. ICD10-Codes

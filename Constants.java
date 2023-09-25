@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 public class Constants {
 
     public static final String[] QUASI_IDENTIFIER_CHOICE = {"Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers
-
+    public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "test-data/"; // Foldername or path, where the input test-dataset is stored
     public static final String FILE_PATH = "zfkd_QI_adapted_60000.csv"; // Filename of the starting dataset
     public static final String HIERARCHY_PATH = "hierarchies2/"; // Foldername or path, where the hierarchies are stored
