@@ -1,6 +1,5 @@
+package deprecated;
 import org.deidentifier.arx.Data;
-
-import deprecated.getHierarchyDisease;
 
 public class HierarchyFileCreator {
     public static void main(Data inputData) {
