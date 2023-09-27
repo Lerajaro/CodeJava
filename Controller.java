@@ -13,7 +13,7 @@ public class Controller {
      * Also check if your choice of QUASI_IDENTIFIER_CHOICE is as desired. 
      * Then run main.
      */
-    private static int ITERATION_COUNT = 1;
+    // private static int ITERATION_COUNT = 1;
 
     public static void main(String[] args) throws IOException {
         Map<String, Integer> result = CSVFileScanner(Constants.HIERARCHY_PATH); // count the number of columns in each Hierarchy-csv-file inside the given Hierarchypath-folder. CAVE: only works if hierarchies have the same name as QI's. // TesterMethods.TestStringIntMaps(result);
@@ -26,7 +26,7 @@ public class Controller {
         System.out.println("\n------------------\nAnticipated iterations: " + totalIterations);
         
         iterateQIResolution(reorderedResult, QI_Resolution, 0); // create Iteration protocoll and calling the RiskEstimation each time.
-        System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (ITERATION_COUNT - 1) + "\n");
+        System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (Constants.ITERATION_COUNT - 1) + "\n");
     }
 
     public static Map<String, Integer> CSVFileScanner(String filePath) {
@@ -107,10 +107,11 @@ public class Controller {
         
         if (index == Constants.QUASI_IDENTIFIER_FULL_SET.length) {
             // Base case: All QI_Resolutions have been set, call RiskEstimator
-            System.out.println("Iteration Count: " + ITERATION_COUNT);
-            ITERATION_COUNT += 1;
+            System.out.println("Iteration Count: " + Constants.ITERATION_COUNT);
             // QI_Resolution[1] = 1; // Hard coding to avoid the error in Geschlecht
-            callRiskEstimator(QI_Resolution);
+            Constants.setQIResolution(QI_Resolution);
+            callRiskEstimator();
+            Constants.incrementIterationCount();
             return;
         }
 
@@ -126,19 +127,19 @@ public class Controller {
         return;
     }
 
-    private static void callRiskEstimator(int[] QI_Resolution) {
+    private static void callRiskEstimator() {
         // Call RiskEstimator with the current QI_Resolution
         System.out.print("QI_Resolution for this iteration: {");
-        for (int i = 0; i < QI_Resolution.length; i++) {
-            System.out.print(QI_Resolution[i]);
-            if (i < QI_Resolution.length - 1) {
+        for (int i = 0; i < Constants.QI_RESOLUTION.length; i++) {
+            System.out.print(Constants.QI_RESOLUTION[i]);
+            if (i < Constants.QI_RESOLUTION.length - 1) {
                 System.out.print(", ");
             }
         }
         System.out.println("}\n------------------\n");
         try {
         // Uncomment the following line to actually call RiskEstimator with QI_Resolution
-            RiskEstimator.RiskEstimation(QI_Resolution);
+            RiskEstimator.RiskEstimation();
         } catch (IOException e) {
             // Wrap the checked exception in a runtime exception
             throw new RuntimeException("Error in RiskEstimation", e);
