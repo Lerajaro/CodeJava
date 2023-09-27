@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Example34",
+            "request": "launch",
+            "mainClass": "Example34",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "ZIPCodeHierarchyGenerator",
             "request": "launch",
             "mainClass": "deprecated.ZIPCodeHierarchyGenerator",

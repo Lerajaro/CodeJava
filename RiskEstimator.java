@@ -48,26 +48,25 @@ public class RiskEstimator extends Example {
     public static void main(String[] args) {
     }
 
-    public static void RiskEstimation(int[] qiResolution) throws IOException {
+    public static void RiskEstimation() throws IOException {
         try{
-            QI_RESOLUTION = qiResolution;
-            Data data = Data.create(Constants.FOLDER_PATH + Constants.FILE_PATH, StandardCharsets.UTF_8, ',');
+            QI_RESOLUTION = Constants.QI_RESOLUTION;
+
+            if (Constants.ITERATION_COUNT == 1) {
+                Constants.setData();
+                System.out.println("\nNumber of rows of DATA is: " + Constants.DATA.getHandle().getNumColumns());
+                defineAttributes(Constants.DATA); 
+                setHierarchy(Constants.DATA);
+                DataDefinition dataDefinition = Constants.DATA.getDefinition();
+                TesterMethods.testDefineAttributes(dataDefinition);
+            }
+            else {
+                Constants.DATA.getHandle().release();
+            }
+            // Data data = Data.create(Constants.FOLDER_PATH + Constants.FILE_PATH, StandardCharsets.UTF_8, ',');
             
-            defineAttributes(data); 
-            setHierarchy(data); // 
-            setGeneralizationLevel(data); 
-
-            System.out.println("\nNow testing data Definitions: ");
-            DataDefinition dataDefinition = data.getDefinition();
-            TesterMethods.testDefineAttributes(dataDefinition);
-            TesterMethods.testHierarchyBuildingSuccess(dataDefinition);
-            TesterMethods.testGeneralizationSuccess(dataDefinition); // Print out what the generalization minimum for each attribute ist. 
-            TesterMethods.testQIGeneralization(dataDefinition);
-
-            System.out.println("\n - Quasi-identifiers sorted by risk:");
-            analyzeAttributes(data.getHandle());
-            System.out.println("\n - Risk analysis:");
-            analyzeData(data.getHandle());
+ // 
+            // setGeneralizationLevel(Constants.DATA); 
 
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
@@ -76,26 +75,20 @@ public class RiskEstimator extends Example {
             config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
             config.setSuppressionLimit(0d);
             
-            ARXResult result = anonymizer.anonymize(data, config);
-            System.out.println("\nNow testing result Definitions:");
-            DataDefinition resultDefinition = result.getDataDefinition();
-            TesterMethods.testDefineAttributes(resultDefinition);
-            TesterMethods.testHierarchyBuildingSuccess(resultDefinition);
-            TesterMethods.testGeneralizationSuccess(resultDefinition); // Print out what the generalization minimum for each attribute ist. 
-            TesterMethods.testQIGeneralization(resultDefinition);
+            ARXResult result = anonymizer.anonymize(Constants.DATA, config);
+         
             
             System.out.println("\nNow testing result Output Definitions:");
-            System.out.println("\nOutput Data:\n" + result.getOutput());
-            System.out.println("\nInput Data:\n" + result.getInput());
-            System.out.println("\nConfiguration:\n" + result.getConfiguration());
+            System.out.println("Input Data: " + result.getInput());
+            System.out.println("Output Data: " + result.getOutput());
+            System.out.println("Configuration: " + result.getConfiguration());
+            System.out.println("Optimum found? : " + result. getOptimumFound());
+            System.out.println("Global Optimum: " + result.getGlobalOptimum());
 
             DataDefinition resultOutputDefinition = result.getOutput().getDefinition();
-            TesterMethods.testDefineAttributes(resultOutputDefinition);
-            TesterMethods.testHierarchyBuildingSuccess(resultOutputDefinition);
+            // TesterMethods.testHierarchyBuildingSuccess(resultOutputDefinition);
             TesterMethods.testGeneralizationSuccess(resultOutputDefinition); // Print out what the generalization minimum for each attribute ist. 
-            TesterMethods.testQIGeneralization(resultOutputDefinition);
-
-            System.out.println("resultDefinition == resultOUtputDefinition: " + (resultOutputDefinition == resultDefinition));
+            // TesterMethods.testQIGeneralization(resultOutputDefinition);
 
             result.getOutput().getRiskEstimator().getAttributeRisks();
             
@@ -109,7 +102,7 @@ public class RiskEstimator extends Example {
             // outputStream(data, outputFile);
             // Writing a new line to the analysis.csv
             csvCreator2(Constants.FILE_NAME_PREFIX, Constants.DATA_SIZE, outputFile, QI_RESOLUTION, risks);
-            System.out.println("\nDone! Back to Controller and Iteration over QI_Resolutions\n------------------\n\n");
+            System.out.println("\nAll Done! Back to Controller and next Iteration\n\n------------------");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,7 +121,7 @@ public class RiskEstimator extends Example {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
-                if (QI_RESOLUTION[i] != -1) {
+                if (QI_RESOLUTION[i] != -1) { // Before it was 0, but it would be nice to adapt contorller to set all QI's that are not voted for to -1.
                     setAttributeType(data, variable, category);
                     System.out.println("Variable " + variable + " is now set to " + category);    
                 }
@@ -161,15 +154,40 @@ public class RiskEstimator extends Example {
 
     private static void setHierarchy(Data data){
         try {
+            for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
+                System.out.println("Now inside SwitchCase-clause");
+                switch (attribute) {
+                    case "Age":
+                        data.getDefinition().setAttributeType("Age", Hierarchy.create("hierarchies2/age.csv", StandardCharsets.UTF_8, ';'));
+                        break;
+                    case "Geschlecht":
+                        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("hierarchies2/geschlecht.csv", StandardCharsets.UTF_8, ';'));
+                        break;
+                    case "Inzidenzort":
+                        data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("hierarchies2/inzidenzort.csv", StandardCharsets.UTF_8, ';'));
+                        break;
+                    case "Diagnose_ICD10_Code":
+                        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
+                        break;
+                    case "Geburtsdatum":
+                        // date(data, "Geburtsdatum");                        
+                        break;
+                    case "Diagnosedatum":
+                        // date(data, "Diagnosedatum")
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid attribute for Hierarchy Settings");
+                }
+            }
             // Define hierarchies
             // date(data, "Geburtsdatum");
             // date(data, "Diagnosedatum");
-            data.getDefinition().setAttributeType("Age", Hierarchy.create("hierarchies2/age.csv", StandardCharsets.UTF_8, ';'));
-            data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("hierarchies2/geschlecht.csv", StandardCharsets.UTF_8, ';'));
-            //ICD10CodeHierarchy builderInzidenzort =  ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort"));
-            data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("hierarchies2/inzidenzort.csv", StandardCharsets.UTF_8, ';'));
-            // data.getDefinition().setAttributeType("Inzidenzort", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
-            data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
+            // data.getDefinition().setAttributeType("Age", Hierarchy.create("hierarchies2/age.csv", StandardCharsets.UTF_8, ';'));
+            // data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("hierarchies2/geschlecht.csv", StandardCharsets.UTF_8, ';'));
+            // //ICD10CodeHierarchy builderInzidenzort =  ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort"));
+            // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("hierarchies2/inzidenzort.csv", StandardCharsets.UTF_8, ';'));
+            // // data.getDefinition().setAttributeType("Inzidenzort", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Inzidenzort")));
+            // data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
         } catch (IOException e) {
             // Handle the IOException, e.g., print an error message or log the details
             System.err.println("Error creating hierarchies:");
@@ -181,7 +199,7 @@ public class RiskEstimator extends Example {
 
     private static void setGeneralizationLevel(Data data){
         for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_CHOICE).indexOf(attribute);
 
             if (index > 0 && index < QI_RESOLUTION.length){
                 //config.setMinimumGeneralizationLevel(attribute, QI_RESOLUTION[index]);
