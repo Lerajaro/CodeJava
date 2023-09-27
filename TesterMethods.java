@@ -1,5 +1,7 @@
 import org.deidentifier.arx.Data;
 import org.deidentifier.arx.DataDefinition;
+import org.deidentifier.arx.ARXResult;
+
 
 import java.util.Map;
 
@@ -42,7 +44,18 @@ public class TesterMethods {
         System.out.println("QI's with Generalization: " + dataDefinition.getQuasiIdentifiersWithGeneralization());
         System.out.println("QI's with Microaggregation: " + dataDefinition.getQuasiIdentifiersWithMicroaggregation());
     }
-    
+
+    public static void testResult(ARXResult result) {
+        System.out.println("\nNow testing result Output Definitions:");
+        System.out.println("--------------------------------------");
+        System.out.println("Input Data: " + result.getInput());
+        System.out.println("Output Data: " + result.getOutput());
+        System.out.println("Configuration: " + result.getConfiguration());
+        System.out.println("Optimum found? : " + result. getOptimumFound());
+        System.out.println("Global Optimum: " + result.getGlobalOptimum());
+    }
+
+
     public static void TestIntArrays(int[] arrayToBePrinted){
         for (int i = 0; i < arrayToBePrinted.length; i++) {
             // Print each element followed by a space (or any separator you prefer)
