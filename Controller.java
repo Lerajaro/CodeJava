@@ -16,6 +16,8 @@ public class Controller {
     // private static int ITERATION_COUNT = 1;
 
     public static void main(String[] args) throws IOException {
+        System.out.println("\nProgram Start...");
+        long startTime = System.currentTimeMillis();
         Map<String, Integer> result = CSVFileScanner(Constants.HIERARCHY_PATH); // count the number of columns in each Hierarchy-csv-file inside the given Hierarchypath-folder. CAVE: only works if hierarchies have the same name as QI's. // TesterMethods.TestStringIntMaps(result);
         
         Map<String, Integer> reorderedResult = reorderHashMap(result); // reorder the the result and adapt the keys to fit QUASI_IDENTIFIER_STRINGS. // TesterMethods.TestStringIntMaps(reorderedResult);
@@ -27,6 +29,9 @@ public class Controller {
         
         iterateQIResolution(reorderedResult, QI_Resolution, 0); // create Iteration protocoll and calling the RiskEstimation each time.
         System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (Constants.ITERATION_COUNT - 1) + "\n");
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("Elapsed time: " + elapsedTime + " milliseconds.");
     }
 
     public static Map<String, Integer> CSVFileScanner(String filePath) {
@@ -41,7 +46,7 @@ public class Controller {
 
         if (folder.exists() && folder.isDirectory()) {
             File[] csvFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
-            System.out.println("# Checking the HIERARCHY_PATH folder for csv's and counting the columns:");
+            System.out.println("\nHIERARCHY_PATH:" + filePath + "\nChecking folder for csv's and counting the columns...");
             if (csvFiles != null) {
                 for (File csvFile : csvFiles) {
                     try {
@@ -87,13 +92,6 @@ public class Controller {
                 }
             }
         }
-        TesterMethods.TestStringIntMaps(reorderedMap, "reorderedMap from Controller");
-        // Print the contents of the reorderedMap
-        // System.out.println("# Reordered HashMap based on QUASI_IDENTIFIERS:");
-        // for (Map.Entry<String, Integer> entry : reorderedMap.entrySet()) {
-        //     System.out.println(entry.getKey() + " has " + entry.getValue() + " columns.");
-        // }
-        // System.out.println("\n");
         return reorderedMap;
     }
 
