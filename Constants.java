@@ -7,7 +7,7 @@ import org.deidentifier.arx.Data;
 
 public class Constants {
 
-    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht"}; // Change according to needed choice of Quasi-Identifiers
+    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers
     public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "test-data/"; // Foldername or path, where the input test-dataset is stored
     public static final String FILE_PATH = "zfkd_QI_adapted_60000.csv"; // Filename of the starting dataset
