@@ -1,4 +1,4 @@
-package deprecated;
+package hierarchyCreators;
 import org.deidentifier.arx.Data;
 
 public class HierarchyFileCreator {

@@ -1,4 +1,4 @@
-package deprecated; 
+package hierarchyCreators; 
 import java.io.*;
 
 public class ZIPCodeHierarchyGenerator {

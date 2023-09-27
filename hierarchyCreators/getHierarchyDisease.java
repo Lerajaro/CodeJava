@@ -1,4 +1,4 @@
-package deprecated;
+package hierarchyCreators;
 import org.deidentifier.arx.AttributeType.Hierarchy.DefaultHierarchy;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 /* This class serves as helper class to create custom Hierarchies */

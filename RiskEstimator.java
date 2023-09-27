@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.DataDefinition;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.AttributeType.Hierarchy;
@@ -51,12 +52,22 @@ public class RiskEstimator extends Example {
         try{
             QI_RESOLUTION = qiResolution;
             Data data = Data.create(Constants.FOLDER_PATH + Constants.FILE_PATH, StandardCharsets.UTF_8, ',');
+            
             defineAttributes(data); 
-            TesterMethods.testDefineAttributes(data);
-            setHierarchy(data); // TesterMethods.testHierarchyBuildingSuccess(data);
+            setHierarchy(data); // 
             setGeneralizationLevel(data); 
-            TesterMethods.testGeneralizationSuccess(data);
-            // Print out what the generalization minimum for each attribute ist. 
+
+            System.out.println("\nNow testing data Definitions: ");
+            DataDefinition dataDefinition = data.getDefinition();
+            TesterMethods.testDefineAttributes(dataDefinition);
+            TesterMethods.testHierarchyBuildingSuccess(dataDefinition);
+            TesterMethods.testGeneralizationSuccess(dataDefinition); // Print out what the generalization minimum for each attribute ist. 
+            TesterMethods.testQIGeneralization(dataDefinition);
+
+            System.out.println("\n - Quasi-identifiers sorted by risk:");
+            analyzeAttributes(data.getHandle());
+            System.out.println("\n - Risk analysis:");
+            analyzeData(data.getHandle());
 
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
@@ -66,6 +77,26 @@ public class RiskEstimator extends Example {
             config.setSuppressionLimit(0d);
             
             ARXResult result = anonymizer.anonymize(data, config);
+            System.out.println("\nNow testing result Definitions:");
+            DataDefinition resultDefinition = result.getDataDefinition();
+            TesterMethods.testDefineAttributes(resultDefinition);
+            TesterMethods.testHierarchyBuildingSuccess(resultDefinition);
+            TesterMethods.testGeneralizationSuccess(resultDefinition); // Print out what the generalization minimum for each attribute ist. 
+            TesterMethods.testQIGeneralization(resultDefinition);
+            
+            System.out.println("\nNow testing result Output Definitions:");
+            System.out.println("\nOutput Data:\n" + result.getOutput());
+            System.out.println("\nInput Data:\n" + result.getInput());
+            System.out.println("\nConfiguration:\n" + result.getConfiguration());
+
+            DataDefinition resultOutputDefinition = result.getOutput().getDefinition();
+            TesterMethods.testDefineAttributes(resultOutputDefinition);
+            TesterMethods.testHierarchyBuildingSuccess(resultOutputDefinition);
+            TesterMethods.testGeneralizationSuccess(resultOutputDefinition); // Print out what the generalization minimum for each attribute ist. 
+            TesterMethods.testQIGeneralization(resultOutputDefinition);
+
+            System.out.println("resultDefinition == resultOUtputDefinition: " + (resultOutputDefinition == resultDefinition));
+
             result.getOutput().getRiskEstimator().getAttributeRisks();
             
             // Perform risk analysis
@@ -88,15 +119,16 @@ public class RiskEstimator extends Example {
 
     private static String[][] defineAttributes(Data data) {
         String[] identifyers = {};
-        String[] sensitives = {};
+        String[] quasiIdentifiers = Constants.QUASI_IDENTIFIER_CHOICE;
+        String[] sensitives = Constants.SENSITIVES_CHOICE;
         String[] insensitives = {};
-        String[][] variableTypes = {Constants.QUASI_IDENTIFIER_CHOICE, identifyers, sensitives, insensitives};
+        String[][] variableTypes = {quasiIdentifiers, identifyers, sensitives, insensitives};
 
         for (AttributeCategory category : AttributeCategory.values()) {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
-                if (QI_RESOLUTION[i] != 0) {
+                if (QI_RESOLUTION[i] != -1) {
                     setAttributeType(data, variable, category);
                     System.out.println("Variable " + variable + " is now set to " + category);    
                 }
@@ -149,7 +181,7 @@ public class RiskEstimator extends Example {
 
     private static void setGeneralizationLevel(Data data){
         for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_CHOICE).indexOf(attribute);
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
 
             if (index > 0 && index < QI_RESOLUTION.length){
                 //config.setMinimumGeneralizationLevel(attribute, QI_RESOLUTION[index]);
@@ -159,22 +191,9 @@ public class RiskEstimator extends Example {
         }
     }
 
-    private static Double[] getRisks(Data data){
-        DataHandle handle = data.getHandle();
-        // Perform risk analysis and other operations
-        ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.GERMANY);
-        RiskEstimateBuilder builder = handle.getRiskEstimator(populationmodel);
-        RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();
-        Double averageRisk = sampleReidentifiationRisk.getAverageRisk();
-        Double lowestRisk = sampleReidentifiationRisk.getLowestRisk();
-        Double highestRisk = sampleReidentifiationRisk.getHighestRisk();
-        Double[] risks = {averageRisk, lowestRisk, highestRisk};
-        return risks;
-    }
-
     private static Double[] getRisksFromHandle(DataHandle dataHandle) {
-        //DataHandle handle = data.getHandle();
         // Perform risk analysis and other operations
+
         ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.GERMANY);
         RiskEstimateBuilder builder = dataHandle.getRiskEstimator(populationmodel);
         RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();
@@ -216,36 +235,6 @@ public class RiskEstimator extends Example {
             e.printStackTrace();
         }
     }
-
-    private static void csvCreator(String dataPrefix, String dataSize, String outputStream, String[] quasiIdentifiers,
-                                      Double[] risks) {
-        String outputFile = Constants.ANALYSIS_FOLDER + "analysis.csv"; // Modify this to the actual output file path
-
-        try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
-            StringBuilder line = new StringBuilder();
-            line.append(dataPrefix).append(", ")
-                .append(dataSize).append(", ")
-                .append(outputStream).append(", ");
-            
-            for (int i = 0; i < 6; i++) {
-                if (i < quasiIdentifiers.length) {
-                    line.append(quasiIdentifiers[i]);
-                }
-                line.append(", ");
-            }
-            
-            for (Double risk : risks) {
-                line.append(risk).append(", ");
-            }
-            if (line.length() > 0) {
-                line.delete(line.length() - 2, line.length());
-            }
-
-            writer.write(line.toString() + System.lineSeparator());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } 
         
     private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, int[] quasiIdentifiers,
                                       Double[] risks) {
