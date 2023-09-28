@@ -54,8 +54,7 @@ public class RiskEstimator extends Example {
 
             if (Constants.ITERATION_COUNT == 1) {
                 Constants.setData();
-                System.out.println("Number of columns of DATA is: " + Constants.DATA.getHandle().getNumColumns());
-                System.out.println("Number of Rows of DATA is: " + Constants.DATA.getHandle().getNumRows());
+                TesterMethods.testData();
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
                 // DataDefinition dataDefinition = Constants.DATA.getDefinition();
@@ -69,6 +68,7 @@ public class RiskEstimator extends Example {
             TesterMethods.testGeneralizationSuccess(Constants.DATA.getDefinition());
 
             TesterMethods.testAttribute("Inzidenzort");
+            TesterMethods.testHierarchyBuildingSuccess(Constants.DATA.getDefinition());
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
             ARXConfiguration config = ARXConfiguration.create();
@@ -104,12 +104,12 @@ public class RiskEstimator extends Example {
 
 
     private static String[][] defineAttributes(Data data) {
+        System.out.println("\nSetting categories to attributes...");
         String[] identifyers = {};
         String[] quasiIdentifiers = Constants.QUASI_IDENTIFIER_CHOICE;
         String[] sensitives = Constants.SENSITIVES_CHOICE;
         String[] insensitives = {};
         String[][] variableTypes = {quasiIdentifiers, identifyers, sensitives, insensitives};
-        System.out.println("\nSetting categories to attributes...");
         for (AttributeCategory category : AttributeCategory.values()) {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
@@ -149,13 +149,13 @@ public class RiskEstimator extends Example {
             for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
                 switch (attribute) {
                     case "Age":
-                        data.getDefinition().setAttributeType("Age", Hierarchy.create("hierarchies2/age.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType("Age", Hierarchy.create(Constants.HIERARCHY_PATH + "age.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Geschlecht":
-                        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create("hierarchies2/geschlecht.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Inzidenzort":
-                        data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create("hierarchies2/inzidenzort.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Diagnose_ICD10_Code":
                         data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
