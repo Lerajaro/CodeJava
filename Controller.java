@@ -23,15 +23,16 @@ public class Controller {
         Map<String, Integer> reorderedResult = reorderHashMap(result); // reorder the the result and adapt the keys to fit QUASI_IDENTIFIER_STRINGS. // TesterMethods.TestStringIntMaps(reorderedResult);
 
         int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
+        QI_Resolution = resolutionChecker(QI_Resolution);
 
         int totalIterations = calculateTotalIterations(reorderedResult);
         System.out.println("\n------------------\nAnticipated iterations: " + totalIterations);
         
-        iterateQIResolution(reorderedResult, QI_Resolution, 0); // create Iteration protocoll and calling the RiskEstimation each time.
-        System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (Constants.ITERATION_COUNT - 1) + "\n");
+        iterateQIResolution(reorderedResult, QI_Resolution, 0); // this is where the true work is done! create Iteration protocoll and calling the RiskEstimation each time.
+        System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (Constants.ITERATION_COUNT - 1));
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
-        System.out.println("Elapsed time: " + elapsedTime + " milliseconds.");
+        System.out.println("Elapsed time: " + elapsedTime + " milliseconds.\n");
     }
 
     public static Map<String, Integer> CSVFileScanner(String filePath) {
@@ -92,6 +93,7 @@ public class Controller {
                 }
             }
         }
+        TesterMethods.TestStringIntMaps(reorderedMap, "reorderedHashpMap from Controller");
         return reorderedMap;
     }
 
@@ -106,37 +108,50 @@ public class Controller {
         if (index == Constants.QUASI_IDENTIFIER_FULL_SET.length) {
             // Base case: All QI_Resolutions have been set, call RiskEstimator
             System.out.println("Iteration Count: " + Constants.ITERATION_COUNT);
-            // QI_Resolution[1] = 1; // Hard coding to avoid the error in Geschlecht
             Constants.setQIResolution(QI_Resolution);
             callRiskEstimator();
             Constants.incrementIterationCount();
             return;
         }
-
-        String currentQuasiIdentifier = Constants.QUASI_IDENTIFIER_FULL_SET[index];
-        // Determine the maximum number of iterations for the current quasi-identifier
-        int maxIterations = reorderedResult.getOrDefault(currentQuasiIdentifier, 0); // shouldn't it be the column count -1 (since indices start at 0)?
-
-        // Try different values for QI_Resolution at the current index
-        for (int i = 0; i <= maxIterations; i++) {
-            QI_Resolution[index] = i;
+        
+        if (QI_Resolution[index] != -1) {
+            String currentQuasiIdentifier = Constants.QUASI_IDENTIFIER_FULL_SET[index];
+            int maxIterations = reorderedResult.getOrDefault(currentQuasiIdentifier, 0) -1; // column count -1 since indices start at 0
+            for (int i = 0; i <= maxIterations; i++) {
+                QI_Resolution[index] = i;
+                iterateQIResolution(reorderedResult, QI_Resolution, index + 1);
+            }
+        }
+        else {
             iterateQIResolution(reorderedResult, QI_Resolution, index + 1);
         }
         return;
     }
 
-    private static void callRiskEstimator() {
-        // Call RiskEstimator with the current QI_Resolution
-        System.out.print("QI_Resolution for this iteration: {");
-        for (int i = 0; i < Constants.QI_RESOLUTION.length; i++) {
-            System.out.print(Constants.QI_RESOLUTION[i]);
-            if (i < Constants.QI_RESOLUTION.length - 1) {
-                System.out.print(", ");
+    private static int[] resolutionChecker(int[] QI_Resolution) {
+        for (int i = 0; i < Constants.QUASI_IDENTIFIER_FULL_SET.length; i++) {
+            String attribute = Constants.QUASI_IDENTIFIER_FULL_SET[i];
+            boolean isInQIChoice = false;
+
+            for (String choice : Constants.QUASI_IDENTIFIER_CHOICE) {
+                if (choice.equals(attribute)) {
+                    isInQIChoice = true;
+                    break;
+                }
+            }
+
+            if (!isInQIChoice) {
+                QI_Resolution[i] = -1;
             }
         }
-        System.out.println("}\n------------------\n");
+        return QI_Resolution;
+    }
+
+    private static void callRiskEstimator() {
+        // Call RiskEstimator with the current QI_Resolution
+        TesterMethods.printQIResolution();
+        System.out.println("------------------\n");
         try {
-        // Uncomment the following line to actually call RiskEstimator with QI_Resolution
             RiskEstimator.RiskEstimation();
         } catch (IOException e) {
             // Wrap the checked exception in a runtime exception
@@ -148,7 +163,7 @@ public class Controller {
         int totalIterations = 1;
         for (String quasiIdentifier : Constants.QUASI_IDENTIFIER_FULL_SET) {
             if (reorderedResult.containsKey(quasiIdentifier)) {
-                totalIterations *= (reorderedResult.get(quasiIdentifier) + 1);
+                totalIterations *= (reorderedResult.get(quasiIdentifier));
             }
         }
         return totalIterations;

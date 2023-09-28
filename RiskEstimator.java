@@ -54,19 +54,21 @@ public class RiskEstimator extends Example {
 
             if (Constants.ITERATION_COUNT == 1) {
                 Constants.setData();
-                System.out.println("\nNumber of columns of DATA is: " + Constants.DATA.getHandle().getNumColumns());
+                System.out.println("Number of columns of DATA is: " + Constants.DATA.getHandle().getNumColumns());
                 System.out.println("Number of Rows of DATA is: " + Constants.DATA.getHandle().getNumRows());
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
-                DataDefinition dataDefinition = Constants.DATA.getDefinition();
-                TesterMethods.testDefineAttributes(dataDefinition);
+                // DataDefinition dataDefinition = Constants.DATA.getDefinition();
+                // TesterMethods.testDefineAttributes(dataDefinition);
             }
             else {
                 Constants.DATA.getHandle().release();
             }
             
-            // setGeneralizationLevel(Constants.DATA); 
+            setGeneralizationLevel(Constants.DATA); // Still buggy at the moment
+            TesterMethods.testGeneralizationSuccess(Constants.DATA.getDefinition());
 
+            TesterMethods.testAttribute("Inzidenzort");
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
             ARXConfiguration config = ARXConfiguration.create();
@@ -107,7 +109,7 @@ public class RiskEstimator extends Example {
         String[] sensitives = Constants.SENSITIVES_CHOICE;
         String[] insensitives = {};
         String[][] variableTypes = {quasiIdentifiers, identifyers, sensitives, insensitives};
-        System.out.println("\nNow defining attributes to categories...");
+        System.out.println("\nSetting categories to attributes...");
         for (AttributeCategory category : AttributeCategory.values()) {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
@@ -143,7 +145,7 @@ public class RiskEstimator extends Example {
 
     private static void setHierarchy(Data data){
         try {
-            System.out.println("Setting Hierarchies to according attributes...");
+            System.out.println("Setting Hierarchies to according Quasi-Identifying attributes...");
             for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
                 switch (attribute) {
                     case "Age":
@@ -177,12 +179,10 @@ public class RiskEstimator extends Example {
     }
 
     private static void setGeneralizationLevel(Data data){
-        System.out.println("Setting Generalization Levels to QUASI_IDENTIFIER_CHOICE's");
+        System.out.println("Setting Generalization Levels to choice of Quasi_Identifiers...");
         for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_CHOICE).indexOf(attribute);
-
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
             if (index > 0 && index < QI_RESOLUTION.length){
-                //config.setMinimumGeneralizationLevel(attribute, QI_RESOLUTION[index]);
                 data.getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
                 data.getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
             }
@@ -191,7 +191,7 @@ public class RiskEstimator extends Example {
 
     private static Double[] getRisksFromHandle(DataHandle dataHandle) {
         // Perform risk analysis and other operations
-
+        System.out.println("\nAnalyzing Risks from current Data Handle...");
         ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.GERMANY);
         RiskEstimateBuilder builder = dataHandle.getRiskEstimator(populationmodel);
         RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();

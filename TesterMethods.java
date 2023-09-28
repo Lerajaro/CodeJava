@@ -4,6 +4,7 @@ import org.deidentifier.arx.ARXResult;
 
 
 import java.util.Map;
+import java.util.Arrays;
 
 public class TesterMethods {
     public static void testDefineAttributes(DataDefinition dataDefinition) {
@@ -16,11 +17,12 @@ public class TesterMethods {
     }
 
     public static void testGeneralizationSuccess(DataDefinition dataDefinition) {
-        System.out.println("\nTesting Generalizations");
+        System.out.println("\nTesting Generalization Levels");
         System.out.println("-----------------------");
-
+        printQIResolution();
         for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            System.out.println("Generalizationlevels of : "+ attribute + " are min: " + dataDefinition.getMinimumGeneralization(attribute) + " and max: " + dataDefinition.getMaximumGeneralization(attribute));
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
+            System.out.println("Generalization levels of "+ attribute + " at index: " + index + ". Minimum: " + dataDefinition.getMinimumGeneralization(attribute) + ". Maximum: " + dataDefinition.getMaximumGeneralization(attribute));
         }
     }
     public static void testHierarchyBuildingSuccess(DataDefinition dataDefinition) {
@@ -39,6 +41,12 @@ public class TesterMethods {
             // }
         }
     }
+    public static void testAttribute(String attribute) {
+        System.out.println("\nAttribute Testing");
+        System.out.println("-----------------");
+        System.out.println("Attribute " + attribute + " is of type " + Constants.DATA.getDefinition().getAttributeType(attribute));
+        
+    }
 
     public static void testQIGeneralization(DataDefinition dataDefinition) {
         System.out.println("QI's with Generalization: " + dataDefinition.getQuasiIdentifiersWithGeneralization());
@@ -56,12 +64,23 @@ public class TesterMethods {
     }
 
 
-    public static void TestIntArrays(int[] arrayToBePrinted){
+    public static void testIntArrays(int[] arrayToBePrinted){
         for (int i = 0; i < arrayToBePrinted.length; i++) {
             // Print each element followed by a space (or any separator you prefer)
             System.out.print(arrayToBePrinted[i] + " ");
         }
         System.out.println("\n");
+    }
+
+    public static void printQIResolution() {
+        System.out.print("QI_Resolution for this iteration: {");
+        for (int i = 0; i < Constants.QI_RESOLUTION.length; i++) {
+            System.out.print(Constants.QI_RESOLUTION[i]);
+            if (i < Constants.QI_RESOLUTION.length - 1) {
+                System.out.print(", ");
+            }
+        }
+        System.out.println("}");
     }
 
     public static void TestStringArrays(String[] variables, String clarifyer) {
