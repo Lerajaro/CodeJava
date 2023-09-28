@@ -7,11 +7,11 @@ import org.deidentifier.arx.Data;
 
 public class Constants {
 
-    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers
+    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht"}; // Change according to needed choice of Quasi-Identifiers
     public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "test-data/"; // Foldername or path, where the input test-dataset is stored
     public static final String FILE_PATH = "zfkd_QI_adapted_60000.csv"; // Filename of the starting dataset
-    public static final String HIERARCHY_PATH = "hierarchies2/"; // Foldername or path, where the hierarchies are stored
+    public static final String HIERARCHY_PATH = "hierarchies/"; // Foldername or path, where the hierarchies are stored
 
     public static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Geburtsdatum", "Diagnose_ICD10_Code", "Diagnosedatum"}; // Will remain constant
     public static final String FILE_NAME_PREFIX = extractFirstPart(FILE_PATH); // extracts the first word of the input Filepath as an indicator for the type of data to be used further on.
