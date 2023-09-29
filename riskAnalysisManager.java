@@ -16,7 +16,7 @@ public class RiskAnalysisManager {
 
         if (existingFiles == null) {
             // The directory does not exist or is not a directory
-            return Constants.OUTPUT_DIRECTORY + totalPrefix + "1" + FILE_EXTENSION;
+            return Constants.OUTPUT_DIRECTORY + totalPrefix + "_1" + FILE_EXTENSION;
         }
 
         Arrays.sort(existingFiles); // Sort the existing files to get the last one
@@ -28,7 +28,7 @@ public class RiskAnalysisManager {
 
         if (existingFiles.length == 0) {
             // No files with the prefix and extension found
-            return totalPrefix + "1" + FILE_EXTENSION;
+            return totalPrefix + "_1" + FILE_EXTENSION;
         }
 
         // Get the last file name
@@ -38,7 +38,7 @@ public class RiskAnalysisManager {
         int lastFileNumber = Integer.parseInt(lastFileName.substring(totalPrefix.length(), lastFileName.length() - FILE_EXTENSION.length()));
 
         // Create and return the new file name with the next consecutive number
-        String newFileName = FILE_PREFIX + Constants.FILE_NAME_PREFIX + (lastFileNumber + 1) + FILE_EXTENSION;
+        String newFileName = FILE_PREFIX + Constants.FILE_NAME_PREFIX + "_" + (lastFileNumber + 1) + FILE_EXTENSION;
         // printTester(lastFileName, totalPrefix, lastFileNumber, newFileName);
         return newFileName;
     }
