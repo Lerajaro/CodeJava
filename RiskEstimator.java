@@ -1,7 +1,7 @@
-/* This class is supposed to have all the funcitonalities to take a dataset of zfkd data
+/* This class is supposed to have all the funcitonalities to take a dataset 
 and perform risk analysis to it
-and save the results in the analysis.csv (later maybe the analysis2.csv)
-plus store the detailed results in a single file, of which the name is saved in analysis.csv
+and save the summarized results in the csv-file @ Constants.ANALYSIS_PATH
+Perspecitvely it will output detailed results also each in a single file, of which the name will be saved in the analysis-csv
 */
 
 import java.io.FileWriter;
@@ -22,6 +22,8 @@ import org.deidentifier.arx.DataHandle;
 import org.deidentifier.arx.AttributeType.Hierarchy;
 import org.deidentifier.arx.aggregates.HierarchyBuilderDate;
 import org.deidentifier.arx.aggregates.HierarchyBuilderDate.Granularity;
+import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
+import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased.Order;
 import org.deidentifier.arx.criteria.AverageReidentificationRisk;
 import org.deidentifier.arx.risk.RiskEstimateBuilder;
 import org.deidentifier.arx.risk.RiskModelAttributes;
@@ -57,33 +59,37 @@ public class RiskEstimator extends Example {
                 TesterMethods.testData();
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
-                // DataDefinition dataDefinition = Constants.DATA.getDefinition();
-                // TesterMethods.testDefineAttributes(dataDefinition);
             }
             else {
                 Constants.DATA.getHandle().release();
             }
             
-            setGeneralizationLevel(Constants.DATA); // Still buggy at the moment
-            TesterMethods.testGeneralizationSuccess(Constants.DATA.getDefinition());
+            // Constants.DATA.getDefinition().setMinimumGeneralization("Age", 0);
+            // Constants.DATA.getDefinition().setMaximumGeneralization("Age", 1);
+            // Constants.DATA.getDefinition().setMinimumGeneralization("Geschlecht", 0);
+            // Constants.DATA.getDefinition().setMaximumGeneralization("Geschlecht", 1);
+            // Constants.DATA.getDefinition().setMinimumGeneralization("Inzidenzort", 0);
+            // Constants.DATA.getDefinition().setMaximumGeneralization("Inzidenzort", 1);
 
-            TesterMethods.testAttribute("Inzidenzort");
-            TesterMethods.testHierarchyBuildingSuccess(Constants.DATA.getDefinition());
+            setGeneralizationLevel(Constants.DATA); // Still buggy at the moment, especially for Inzidenzort...
+            //TesterMethods.testGeneralizationSuccess(Constants.DATA.getDefinition());
+
+            
             // Create an instance of the anonymizer
             ARXAnonymizer anonymizer = new ARXAnonymizer();
             ARXConfiguration config = ARXConfiguration.create();
             
-            config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
-            config.setSuppressionLimit(0d);
+            config.addPrivacyModel(new AverageReidentificationRisk(1d));
+            config.setSuppressionLimit(1d);
             
             ARXResult result = anonymizer.anonymize(Constants.DATA, config);
          
-            TesterMethods.testResult(result);
+            // TesterMethods.testResult(result);
 
-            DataDefinition resultOutputDefinition = result.getOutput().getDefinition();
-            TesterMethods.testGeneralizationSuccess(resultOutputDefinition); // Print out what the generalization minimum for each attribute ist. 
+            // DataDefinition resultOutputDefinition = result.getOutput().getDefinition();
+            // TesterMethods.testGeneralizationSuccess(resultOutputDefinition); // Print out what the generalization minimum for each attribute ist. 
 
-            result.getOutput().getRiskEstimator().getAttributeRisks(); // What does this do?
+            // result.getOutput().getRiskEstimator().getAttributeRisks(); // What does this do?
             
             // Perform risk analysis
             Double[] risks = getRisksFromHandle(result.getOutput());
@@ -101,8 +107,6 @@ public class RiskEstimator extends Example {
         }
     }
 
-
-
     private static String[][] defineAttributes(Data data) {
         System.out.println("\nSetting categories to attributes...");
         String[] identifyers = {};
@@ -114,7 +118,7 @@ public class RiskEstimator extends Example {
             String[] variables = variableTypes[category.ordinal()];
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
-                if (QI_RESOLUTION[i] != -1) { // Before it was 0, but it would be nice to adapt contorller to set all QI's that are not voted for to -1.
+                if (QI_RESOLUTION[i] != -1) { // All QI's that are not chosen are set to -1.
                     setAttributeType(data, variable, category);
                 }
             }
@@ -156,6 +160,7 @@ public class RiskEstimator extends Example {
                         break;
                     case "Inzidenzort":
                         data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
+                        // redationBasedHierarchy("Inzidenzort");
                         break;
                     case "Diagnose_ICD10_Code":
                         data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
@@ -176,6 +181,17 @@ public class RiskEstimator extends Example {
             e.printStackTrace();
             // You can also throw a custom exception or handle it as needed
         }  
+    }
+
+    public static void redationBasedHierarchy(String attribute) {
+                // Create the builder
+        HierarchyBuilderRedactionBased<?> builder = HierarchyBuilderRedactionBased.create(Order.RIGHT_TO_LEFT,
+                                                                                    Order.RIGHT_TO_LEFT,
+                                                                                    ' ', '*');
+        int colIndex = Constants.DATA.getHandle().getColumnIndexOf(attribute);
+        builder.prepare(Constants.DATA.getHandle().getDistinctValues(colIndex));  
+        builder.build();
+                                                                             
     }
 
     private static void setGeneralizationLevel(Data data){
@@ -236,7 +252,7 @@ public class RiskEstimator extends Example {
         
     private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, int[] quasiIdentifiers,
                                       Double[] risks) {
-        String outputFile = Constants.ANALYSIS_FOLDER + "analysis3.csv"; // Modify this to the actual output file path
+        String outputFile = Constants.ANALYSIS_FOLDER + Constants.ANALYSIS_PATH; // Modify this to the actual output file path
 
         try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
             StringBuilder line = new StringBuilder();

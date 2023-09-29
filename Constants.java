@@ -7,7 +7,7 @@ import org.deidentifier.arx.Data;
 
 public class Constants {
 
-    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht"}; // Change according to needed choice of Quasi-Identifiers
+    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
     public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "test-data/"; // Foldername or path, where the input test-dataset is stored
     public static final String FILE_PATH = "zfkd_QI_adapted_60000.csv"; // Filename of the starting dataset
@@ -18,6 +18,7 @@ public class Constants {
     public static final String DATA_SIZE = extractNumberWithUnderscore(FILE_PATH); // number of rows of the initial dataset, which will be displayed in the analysis
     public static final String OUTPUT_DIRECTORY = FILE_NAME_PREFIX + "testproducts/"; // Output-directory for precise analysis of each iteration
     public static final String ANALYSIS_FOLDER = "risk-analysis/";
+    public static final String ANALYSIS_PATH = "analysis3.csv";
     public static int[] QI_RESOLUTION = new int[QUASI_IDENTIFIER_FULL_SET.length];
     public static Data DATA = Data.create();
     public static int ITERATION_COUNT = 1; 
