@@ -54,53 +54,43 @@ public class RiskEstimator extends Example {
         try{
             QI_RESOLUTION = Constants.QI_RESOLUTION;
 
-            if (Constants.ITERATION_COUNT == 1) {
+            if (Constants.ITERATION_COUNT == 1) { // will set in the first iteration and then be saved for the consecutive runs.
                 Constants.setData();
                 TesterMethods.testData();
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
+                TesterMethods.testHierarchyBuildingSuccess(Constants.DATA.getDefinition());
             }
             else {
                 Constants.DATA.getHandle().release();
             }
-            
-            // Constants.DATA.getDefinition().setMinimumGeneralization("Age", 0);
-            // Constants.DATA.getDefinition().setMaximumGeneralization("Age", 1);
-            // Constants.DATA.getDefinition().setMinimumGeneralization("Geschlecht", 0);
-            // Constants.DATA.getDefinition().setMaximumGeneralization("Geschlecht", 1);
-            // Constants.DATA.getDefinition().setMinimumGeneralization("Inzidenzort", 0);
-            // Constants.DATA.getDefinition().setMaximumGeneralization("Inzidenzort", 1);
 
-            setGeneralizationLevel(Constants.DATA); // Still buggy at the moment, especially for Inzidenzort...
-            //TesterMethods.testGeneralizationSuccess(Constants.DATA.getDefinition());
+            setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
+            // TesterMethods.testAttribute("Inzidenzort");
+            TesterMethods.testGeneralizationLevelSetting(Constants.DATA.getDefinition());
 
+            ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
+            ARXConfiguration config = ARXConfiguration.create(); // Create an instance of the Configuration
             
-            // Create an instance of the anonymizer
-            ARXAnonymizer anonymizer = new ARXAnonymizer();
-            ARXConfiguration config = ARXConfiguration.create();
-            
+            // Setting the privacy modell and Suppression Limit -- Not needed for our usecase, but inevitable. Therefore: set the thresholds high!
             config.addPrivacyModel(new AverageReidentificationRisk(1d));
             config.setSuppressionLimit(1d);
             
             ARXResult result = anonymizer.anonymize(Constants.DATA, config);
-         
-            // TesterMethods.testResult(result);
+                     
+            if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy modell and parameters 
+                Double[] risks = getRisksFromHandle(result.getOutput()); // Perform risk analysis
+                String outputFile = RiskAnalysisManager.getNewFileName(); // Create a new Output FileName
+                System.out.println("New Output Filename is: " + outputFile); // not needed, unless outputStream is being acitvated, but is buggy at the moment
+                csvCreator2(Constants.FILE_NAME_PREFIX, Constants.DATA_SIZE, outputFile, QI_RESOLUTION, risks);
+            }
+            else {
+                System.out.println("No Result available. Anonymizing goal not reached.");
+            }
 
-            // DataDefinition resultOutputDefinition = result.getOutput().getDefinition();
-            // TesterMethods.testGeneralizationSuccess(resultOutputDefinition); // Print out what the generalization minimum for each attribute ist. 
-
-            // result.getOutput().getRiskEstimator().getAttributeRisks(); // What does this do?
-            
-            // Perform risk analysis
-            Double[] risks = getRisksFromHandle(result.getOutput());
-
-            // Create a new Output FileName
-            String outputFile = RiskAnalysisManager.getNewFileName();
-            System.out.println("New Output Filename is: " + outputFile); // not needed, unless outputStream is being acitvated, but is buggy at the moment
             // Creating a new file with detailed risk analysis
             // outputStream(data, outputFile);
             // Writing a new line to the analysis.csv
-            csvCreator2(Constants.FILE_NAME_PREFIX, Constants.DATA_SIZE, outputFile, QI_RESOLUTION, risks);
             System.out.println("\nAll Done! Back to Controller and next Iteration\n\n------------------");
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,8 +149,8 @@ public class RiskEstimator extends Example {
                         data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Inzidenzort":
-                        data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
-                        // redationBasedHierarchy("Inzidenzort");
+                        // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType("Inzidenzort", redationBasedHierarchy("Inzidenzort"));
                         break;
                     case "Diagnose_ICD10_Code":
                         data.getDefinition().setAttributeType("Diagnose_ICD10_Code", ICD10CodeHierarchy.redactHierarchyBuilder(getStringListFromData(data, "Diagnose_ICD10_Code")));
@@ -183,15 +173,17 @@ public class RiskEstimator extends Example {
         }  
     }
 
-    public static void redationBasedHierarchy(String attribute) {
-                // Create the builder
+    public static Hierarchy redationBasedHierarchy(String attribute) {
+        System.out.println("Establishing a redaction Based Hierarchy for attribute: " + attribute + " ...");
+        // Create the builder
         HierarchyBuilderRedactionBased<?> builder = HierarchyBuilderRedactionBased.create(Order.RIGHT_TO_LEFT,
                                                                                     Order.RIGHT_TO_LEFT,
                                                                                     ' ', '*');
         int colIndex = Constants.DATA.getHandle().getColumnIndexOf(attribute);
-        builder.prepare(Constants.DATA.getHandle().getDistinctValues(colIndex));  
-        builder.build();
-                                                                             
+        String[] values = Constants.DATA.getHandle().getDistinctValues(colIndex);
+        builder.prepare(values);  
+        AttributeType.Hierarchy hierarchy = builder.build();
+        return hierarchy;
     }
 
     private static void setGeneralizationLevel(Data data){
@@ -250,9 +242,9 @@ public class RiskEstimator extends Example {
         }
     }
         
-    private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, int[] quasiIdentifiers,
-                                      Double[] risks) {
-        String outputFile = Constants.ANALYSIS_FOLDER + Constants.ANALYSIS_PATH; // Modify this to the actual output file path
+    private static void csvCreator2(String dataPrefix, String dataSize, String outputStream, int[] quasiIdentifiers, Double[] risks) {
+        String outputFile = Constants.ANALYSIS_FOLDER + Constants.ANALYSIS_PATH; 
+        System.out.println("Writing new line to " + outputFile + " ...");
 
         try (FileWriter writer = new FileWriter(outputFile, true)) { // Append mode
             StringBuilder line = new StringBuilder();
@@ -260,8 +252,8 @@ public class RiskEstimator extends Example {
             Timestamp timestamp = new Timestamp(date.getTime());
             line.append(timestamp).append(", ")
                 .append(dataPrefix).append(", ")
-                .append(dataSize).append(", ")
-                .append(outputStream).append(", ");
+                .append(outputStream).append(", ")
+                .append(Constants.DATA.getHandle().getNumRows()).append(", ");
             
             for (int i = 0; i < 6; i++) {
                 if (i < quasiIdentifiers.length) {

@@ -20,11 +20,11 @@ public class TesterMethods {
 
     public static void testData() {
         System.out.println("Number of columns of DATA is: " + Constants.DATA.getHandle().getNumColumns());
-        System.out.println("Number of Rows of DATA is: " + Constants.DATA.getHandle().getNumRows());
+        System.out.println("Number of Rows of DATA is: " +  Constants.DATA.getHandle().getNumRows());
         System.out.println("DATA ist locked: " + Constants.DATA.getDefinition().isLocked());
     }
 
-    public static void testGeneralizationSuccess(DataDefinition dataDefinition) {
+    public static void testGeneralizationLevelSetting(DataDefinition dataDefinition) {
         System.out.println("\nTesting Generalization Levels");
         System.out.println("-----------------------");
         printQIResolution();
@@ -41,14 +41,14 @@ public class TesterMethods {
 
         for (String attribute : Constants.QUASI_IDENTIFIER_FULL_SET) {
             System.out.println("Hierarchy for "+ attribute + " is: " + dataDefinition.getHierarchyObject(attribute));
-            // for (String[] strA : data.getDefinition().getHierarchy(attribute)) {
-            //     for (String str : strA) {
-            //         System.out.print(str + ", ");
-            //     }
-            //     System.out.println("\n");
-            // }
         }
     }
+
+    public static void testRedactionBasedHierarchy(String attribute) {
+        System.out.println("\nTesting RedactionBasedHierarchy for attriibute: " + attribute);
+        // Some logic here
+    }
+
     public static void testAttribute(String attribute) {
         System.out.println("\nAttribute Testing for attribute: " + attribute);
         System.out.println("-----------------");
