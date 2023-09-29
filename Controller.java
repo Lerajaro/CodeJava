@@ -47,7 +47,7 @@ public class Controller {
 
         if (folder.exists() && folder.isDirectory()) {
             File[] csvFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
-            System.out.println("\nHIERARCHY_PATH:" + filePath + "\nChecking folder for csv's and counting the columns...");
+            System.out.println("\nHIERARCHY_PATH: " + filePath + "\nChecking folder for .csv's and counting the columns...");
             if (csvFiles != null) {
                 for (File csvFile : csvFiles) {
                     try {
