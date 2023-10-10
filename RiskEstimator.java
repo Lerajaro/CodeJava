@@ -59,15 +59,12 @@ public class RiskEstimator extends Example {
                 TesterMethods.testData();
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
-                TesterMethods.testHierarchyBuildingSuccess(Constants.DATA.getDefinition());
             }
             else {
                 Constants.DATA.getHandle().release();
             }
 
             setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
-            // TesterMethods.testAttribute("Inzidenzort");
-            TesterMethods.testGeneralizationLevelSetting(Constants.DATA.getDefinition());
 
             ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
             ARXConfiguration config = ARXConfiguration.create(); // Create an instance of the Configuration
@@ -209,6 +206,8 @@ public class RiskEstimator extends Example {
         Double[] risks = {averageRisk, lowestRisk, highestRisk};
         return risks;
     }
+
+
 
     private static void outputStream(Data data, String outputFile) {
   

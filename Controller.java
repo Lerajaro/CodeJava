@@ -152,7 +152,8 @@ public class Controller {
         TesterMethods.printQIResolution();
         System.out.println("------------------\n");
         try {
-            RiskEstimator.RiskEstimation();
+            // RiskEstimator.RiskEstimation();
+            RiskEstimator2.RiskEstimation();
         } catch (IOException e) {
             // Wrap the checked exception in a runtime exception
             throw new RuntimeException("Error in RiskEstimation", e);

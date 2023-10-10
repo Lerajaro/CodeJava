@@ -6,7 +6,7 @@ public class RiskAnalysisManager {
     private static final String FILE_EXTENSION = ".txt";
 
     public static String getNewFileName() {
-        System.out.println("\nGenerating new filename for detailed analysis output...");
+        // System.out.println("\nGenerating new filename for detailed analysis output...");
         File directory = new File(Constants.ANALYSIS_FOLDER + Constants.OUTPUT_DIRECTORY);
         String[] existingFiles = directory.list();
 

@@ -3,7 +3,7 @@ ReadmeRaff.txt
 JDK:
 https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.7%2B7/OpenJDK17U-jdk_x86-32_windows_hotspot_17.0.7_7.zip 
 
-absPathForJavac: "C:\Users\kniepr\Desktop\jdk-17.0.7+7\bin\javac.exe"
+absPathForJavac: "C:\Users\kniepr\Desktop\jdk-17.0.7+7\bin\javac.exe" + Java file to be compiled
 
 absPathforJava: "C:\Users\kniepr\Desktop\jdk-17.0.7+7\bin\java.exe"
 
