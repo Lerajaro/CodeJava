@@ -109,9 +109,9 @@ public class TesterMethods {
 
     public static void printQIResolution() {
         System.out.print("QI_Resolution for this iteration: {");
-        for (int i = 0; i < Constants.QI_RESOLUTION.length; i++) {
-            System.out.print(Constants.QI_RESOLUTION[i]);
-            if (i < Constants.QI_RESOLUTION.length - 1) {
+        for (int i = 0; i < Constants.getQIResolution().length; i++) {
+            System.out.print(Constants.getQIResolution()[i]);
+            if (i < Constants.getQIResolution().length - 1) {
                 System.out.print(", ");
             }
         }

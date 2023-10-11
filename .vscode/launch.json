@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Controller3",
+            "request": "launch",
+            "mainClass": "Controller3",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "OwnExample16",
             "request": "launch",
             "mainClass": "OwnExample16",
