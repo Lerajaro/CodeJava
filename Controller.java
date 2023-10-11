@@ -93,7 +93,6 @@ public class Controller {
                 }
             }
         }
-        TesterMethods.TestStringIntMaps(reorderedMap, "reorderedHashpMap from Controller");
         return reorderedMap;
     }
 

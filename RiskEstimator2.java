@@ -70,6 +70,7 @@ public class RiskEstimator2 extends Example {
                 Constants.setData();
                 defineAttributes(Constants.DATA); 
                 setHierarchy(Constants.DATA);
+                System.out.println("\nAnalyzing Input Data:");
                 analyzeData(Constants.DATA.getHandle());
             }
             else {
@@ -84,10 +85,10 @@ public class RiskEstimator2 extends Example {
 
             ARXResult result = anonymizer.anonymize(Constants.DATA, config);
             
-            if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy modell and parameters 
+            if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy model and parameters 
                 csvCreator3(result);
-                System.out.println("\nOutput Statistics after Anonymization");
-                printResult(result, Constants.DATA);
+                // System.out.println("\nOutput Statistics after Anonymization");
+                // printResult(result, Constants.DATA);
             }
             else {
                 System.out.println("No Result available. Anonymizing goal not reached.");
@@ -211,7 +212,7 @@ public class RiskEstimator2 extends Example {
         config.setSuppressionLimit(1d); // Recommended default: 1d
         config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[0], 0.5d); // attribute weight
         config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[1], 0.3d); // attribute weight
-        config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[2], 0.5d); // attribute weight
+        config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[2], 1d); // attribute weight
         config.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
         return config;
     }
@@ -239,16 +240,17 @@ public class RiskEstimator2 extends Example {
             line.append(timestamp).append(", ")
                 .append(Constants.FILE_NAME_PREFIX).append(", ")
                 .append(Constants.DATA.getHandle().getNumRows()).append(", ")
-                .append(result.getGlobalOptimum().getLowestScore());
+                .append(result.getGlobalOptimum().getLowestScore()).append( ", ");
             
-            for (int i = 0; i < Constants.QI_RESOLUTION.length -1; i++) {
+            for (int i = 0; i < Constants.QI_RESOLUTION.length; i++) {
                 
                 line.append(Constants.QI_RESOLUTION[i]);
+                
                 line.append(", ");
             }
             
-            Double[] risks = getRisksFromHandle(Constants.DATA.getHandle());
-            int[] equivalenceClasses = getEquivalenceClassStatistics2();
+            Double[] risks = getRisksFromHandle(result.getOutput());
+            int[] equivalenceClasses = getEquivalenceClassStatistics2(result.getOutput());
 
             for (Double risk : risks) {
                 line.append(risk).append(", ");
@@ -325,10 +327,9 @@ public class RiskEstimator2 extends Example {
         System.out.println("       + Population unqiueness (Zayatz): " + populationUniqueness.getFractionOfUniqueTuples(PopulationUniquenessModel.ZAYATZ));
     }
 
-    public static int[] getEquivalenceClassStatistics2() {
-        // Reset stop flag
+    public static int[] getEquivalenceClassStatistics2(DataHandle handle) {
         
-        DataHandle handle = Constants.DATA.getHandle();
+        
         // Prepare
         Set<String> attributes = handle.getDefinition().getQuasiIdentifyingAttributes();
         final int[] indices = new int[attributes.size()];
