@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "RiskEstimator",
+            "request": "launch",
+            "mainClass": "kiggs.RiskEstimator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
+            "name": "Controller",
+            "request": "launch",
+            "mainClass": "kiggs.Controller",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "Controller3",
             "request": "launch",
             "mainClass": "Controller3",

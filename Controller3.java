@@ -1,9 +1,5 @@
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
+
 // import java.util.Arrays;
 
 public class Controller3 {
@@ -31,6 +27,8 @@ public class Controller3 {
         Constants.setData();
         RiskEstimator3.defineAttributes(Constants.DATA);
         RiskEstimator3.setHierarchy(Constants.DATA);
+        System.out.println("\nAnalyzing Input Data:");
+        RiskEstimator3.analyzeData(Constants.DATA.getHandle());
 
         int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
         QI_Resolution = resolutionChecker(QI_Resolution);
