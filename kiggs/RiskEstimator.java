@@ -52,8 +52,6 @@ public class RiskEstimator extends Example {
         try{
             QI_RESOLUTION = Constants.getQIResolution();
 
-            System.out.println("\nAnalyzing Input Data:");
-            analyzeData(Constants.DATA.getHandle());
             Constants.DATA.getHandle().release();
             
             
@@ -253,7 +251,7 @@ public class RiskEstimator extends Example {
      * Perform risk analysis
      * @param handle
      */
-    private static void analyzeData(DataHandle handle) {
+    public static void analyzeData(DataHandle handle) {
         
         ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.USA);
         RiskEstimateBuilder builder = handle.getRiskEstimator(populationmodel);

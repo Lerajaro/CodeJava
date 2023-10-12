@@ -26,6 +26,8 @@ public class Controller {
          * iterate over generalization levels and run the risk estimator
          */
         Constants.setData();
+        System.out.println("\nAnalyzing Input Data:");
+        RiskEstimator.analyzeData(Constants.DATA.getHandle());
         RiskEstimator.defineAttributes(Constants.DATA);
         RiskEstimator.setHierarchy(Constants.DATA);
         TesterMethods.testHierarchyBuildingSuccess("sex");
@@ -127,8 +129,11 @@ public class Controller {
 
     private static int calculateTotalIterations() {
         int totalIterations = 1;
+        System.out.println("\nQI-Choice = ");
+        TesterMethods.TestStringArrays(Constants.QUASI_IDENTIFIER_CHOICE, "QI-Choice");
         for (String quasiIdentifier : Constants.QUASI_IDENTIFIER_CHOICE) {
-            totalIterations *= Constants.DATA.getDefinition().getMaximumGeneralization(quasiIdentifier);
+            System.out.println("\nMax Generalisation for: " + quasiIdentifier + " = " + Constants.DATA.getDefinition().getMaximumGeneralization(quasiIdentifier));
+            totalIterations *= (Constants.DATA.getDefinition().getMaximumGeneralization(quasiIdentifier) + 1);
         }
         return totalIterations;
     }
