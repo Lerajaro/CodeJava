@@ -9,6 +9,27 @@ import java.util.Map;
 import java.util.Arrays;
 
 public class TesterMethods {
+    public static void testHierarchyBuildingSuccess(String attribute) {
+        // CAVE: This method will print out the whole Hierarchies in full extend line by line and therefor take very long.
+        // This should only be used to specifically test a particular hierarchy, else the code will need to be interrupted with CTRL + C. 
+        System.out.println("\nTesting Hierarchy Building Success for attribute: " + attribute);
+        System.out.println("-------------------");
+        System.out.println("Hierarchy for "+ attribute + " is: ");
+        String[][] hierarchy = Constants.DATA.getDefinition().getHierarchy(attribute);
+        printStringArrayOfArrays(hierarchy);
+        
+    }
+
+    public static void printStringArrayOfArrays(String[][] stringArray) {
+        // Iterate through the rows and columns and print the elements
+        for (int i = 0; i < stringArray.length; i++) {
+           for (int j = 0; j < stringArray[i].length; j++) {
+               System.out.print(stringArray[i][j] + "\t"); // Use "\t" for tab spacing
+           }
+           System.out.println(); // Move to the next line after each row
+       }
+   }
+
     public static void testDefineAttributes(DataDefinition dataDefinition) {
         System.out.println("\nTesting Define Attributes");
         System.out.println("-------------------------");
