@@ -5,8 +5,10 @@ and save the summarized results in the csv-file @ Constants.ANALYSIS_PATH
 Perspecitvely it will output detailed results also each in a single file, of which the name will be saved in the analysis-csv
 */
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
@@ -38,6 +40,10 @@ import org.deidentifier.arx.ARXResult;
 import org.deidentifier.arx.ARXPopulationModel.Region;
 import org.deidentifier.arx.risk.RiskModelSampleRisks;
 import org.deidentifier.arx.risk.RiskModelSampleUniqueness;
+
+import deprecated.RiskAnalysis;
+import deprecated.RiskAnalysisManager;
+
 import org.deidentifier.arx.risk.RiskModelHistogram;
 import org.deidentifier.arx.risk.RiskModelPopulationUniqueness;
 import org.deidentifier.arx.risk.RiskModelPopulationUniqueness.PopulationUniquenessModel;
@@ -57,16 +63,8 @@ public class RiskEstimator extends Example {
         try{
             QI_RESOLUTION = Constants.getQIResolution();
 
-            if (Constants.ITERATION_COUNT == 1) { // will set in the first iteration and then be saved for the consecutive runs.
-                Constants.setData();
-                defineAttributes(Constants.DATA); 
-                setHierarchy(Constants.DATA);
-                System.out.println("\nAnalyzing Input Data:");
-                analyzeData(Constants.DATA.getHandle());
-            }
-            else {
-                Constants.DATA.getHandle().release();
-            }
+            Constants.DATA.getHandle().release();
+            
             
             setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
              // Analyze Data
@@ -92,7 +90,76 @@ public class RiskEstimator extends Example {
         }
     }
 
-    private static String[][] defineAttributes(Data data) {
+    // public static void RiskEstimation() throws IOException {
+    //     try{
+    //         QI_RESOLUTION = Constants.getQIResolution();
+
+    //         if (Constants.ITERATION_COUNT == 1) { // will set in the first iteration and then be saved for the consecutive runs.
+    //             Constants.setData();
+    //             defineAttributes(Constants.DATA); 
+    //             setHierarchy(Constants.DATA);
+    //             System.out.println("\nAnalyzing Input Data:");
+    //             analyzeData(Constants.DATA.getHandle());
+    //         }
+    //         else {
+    //             Constants.DATA.getHandle().release();
+    //         }
+            
+    //         setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
+    //          // Analyze Data
+    //         ARXConfiguration config = setConfiguration();
+
+    //         ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
+
+    //         ARXResult result = anonymizer.anonymize(Constants.DATA, config);
+            
+    //         if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy model and parameters 
+    //             csvCreator3(result);
+    //             // System.out.println("\nOutput Statistics after Anonymization");
+    //             String outputFileName = RiskAnalysisManager.getNewFileName(); // Create a new Output FileName
+    //             outputStream(result, outputFileName);
+    //             // printResult(result, Constants.DATA);
+    //         }
+    //         else {
+    //             System.out.println("No Result available. Anonymizing goal not reached.");
+    //         }
+            
+
+    //         System.out.println("\nAll Done! Back to Controller and next Iteration\n\n------------------");
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    // }
+
+    
+    private static void outputStream(ARXResult result, String outputFile) {
+  
+        try {
+            // Redirect standard output
+            PrintStream originalOut = System.out;  // Store original standard output
+            
+            // Redirect standard output to a ByteArrayOutputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(outputStream));
+
+            // Perform risk analysis and other operations
+            System.out.println("\n - Risk analysis:");
+            RiskAnalysis.analyzeData2(result.getOutput());
+
+            // Restore standard output
+            System.setOut(originalOut);
+
+            // Write captured output to the file
+            try (FileWriter writer = new FileWriter(Constants.ANALYSIS_FOLDER + outputFile)) {
+                // Write output
+                writer.write(outputStream.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String[][] defineAttributes(Data data) {
         System.out.println("\nSetting categories to attributes...");
         String[] identifyers = {};
         String[] quasiIdentifiers = Constants.QUASI_IDENTIFIER_CHOICE;
@@ -132,7 +199,7 @@ public class RiskEstimator extends Example {
         data.getDefinition().setAttributeType(variableName, attributeType);
     }
 
-    private static void setHierarchy(Data data){
+    public static void setHierarchy(Data data){
         try {
             System.out.println("Setting Hierarchies to according Quasi-Identifying attributes...");
             for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
@@ -231,7 +298,7 @@ public class RiskEstimator extends Example {
             line.append(timestamp).append(", ")
                 .append(Constants.FILE_NAME_PREFIX).append(", ")
                 .append(Constants.DATA.getHandle().getNumRows()).append(", ")
-                .append(result.getGlobalOptimum().getLowestScore()).append( ", ");
+                .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
             
             for (int i = 0; i < Constants.getQIResolution().length; i++) {
                 
@@ -266,7 +333,7 @@ public class RiskEstimator extends Example {
      * Perform risk analysis
      * @param handle
      */
-    private static void analyzeData(DataHandle handle) {
+    public static void analyzeData(DataHandle handle) {
         
         ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.USA);
         RiskEstimateBuilder builder = handle.getRiskEstimator(populationmodel);

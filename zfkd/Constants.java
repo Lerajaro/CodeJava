@@ -10,18 +10,17 @@ import org.deidentifier.arx.Data;
 public class Constants {
     //-----------------------zfkd-----------------------------
     public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
-    
     public static final String[] SENSITIVES_CHOICE = {"Diagnose_ICD10_Code"};
-    public static final String FOLDER_PATH = "test-data/zfkd/"; // Foldername or path, where the input test-dataset is stored
-    public static final String FILE_PATH = "10000_rows.csv"; // Filename of the starting dataset
+    public static final String FOLDER_PATH = "zfkd/test-data/"; // Foldername or path, where the input test-dataset is stored
+    public static final String FILE_PATH = "25000_rows.csv"; // Filename of the starting dataset
     public static final String HIERARCHY_PATH = "zfkd/hierarchies/"; // Foldername or path, where the hierarchies are stored
-
     public static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Diagnose_ICD10_Code", "Geburtsdatum", "Diagnosedatum"}; // Will remain constant
     public static final String FILE_NAME_PREFIX = "zfkd_"; // extracts the first word of the input Filepath as an indicator for the type of data to be used further on.
     public static final String DATA_SIZE = extractNumberWithUnderscore(FILE_PATH); // number of rows of the initial dataset, which will be displayed in the analysis
     public static final String OUTPUT_DIRECTORY = FILE_NAME_PREFIX + "zfkd/testproducts/"; // Output-directory for precise analysis of each iteration
     public static final String ANALYSIS_FOLDER = "zfkd/risk-analysis/";
     public static final String ANALYSIS_PATH = "analysis.csv";
+
     public static int[] QI_RESOLUTION = new int[QUASI_IDENTIFIER_FULL_SET.length];
     public static Data DATA = Data.create();
     //-------------------------------------------
