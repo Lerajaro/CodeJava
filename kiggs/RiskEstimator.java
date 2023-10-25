@@ -182,7 +182,7 @@ public class RiskEstimator extends Example {
         config.setSuppressionLimit(1d);
         config.addPrivacyModel(new KAnonymity(3));
         // config.addPrivacyModel(new HierarchicalDistanceTCloseness(Constants.SENSITIVES_CHOICE[0], 0.6d, Constants.DATA.getDefinition().getHierarchyObject(Constants.SENSITIVES_CHOICE[0])));
-        config.addPrivacyModel(new RecursiveCLDiversity(Constants.SENSITIVES_CHOICE[0], 3d, 2));
+        // config.addPrivacyModel(new RecursiveCLDiversity(Constants.SENSITIVES_CHOICE[0], 3d, 2));
         config.setQualityModel(Metric.createEntropyMetric());
         config.setSuppressionLimit(1d); // Recommended default: 1d
         config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[0], 0.5d); // attribute weight

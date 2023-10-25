@@ -10,7 +10,7 @@ public class Constants {
     //---------------------kiggs----------------------
     public static final String[] QUASI_IDENTIFIER_CHOICE = {"age2", "sex", "ppoint"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
     public static final String[] QUASI_IDENTIFIER_FULL_SET = {"age2", "agegrpK", "sex", "sexa", "ppoint"}; // Will remain constant
-    public static final String[] SENSITIVES_CHOICE = {"SDEses"};
+    public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "kiggs/test-data/"; // Foldername or path, where the input test-dataset is stored
     public static final String FILE_PATH = "kiggs_GDC_rowcount_3500.csv"; // Filename of the starting dataset
     public static final String HIERARCHY_PATH = "kiggs/hierarchies/"; // Foldername or path, where the hierarchies are stored

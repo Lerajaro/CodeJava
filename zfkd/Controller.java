@@ -1,5 +1,8 @@
 package zfkd;
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+
 
 // import java.util.Arrays;
 
@@ -11,18 +14,51 @@ public class Controller {
      * Then run main.
      */
     // private static int ITERATION_COUNT = 1;
+    // public static void main(String[] args) throws IOException {
+    //     System.out.println("\nProgram Start...");
+    //     File directory = new File(Constants.FOLDER_PATH);
+    //     System.out.println("\nFile directory: ");
+    //     String[] existingFiles = directory.list();
+    //     TesterMethods.TestStringArrays(existingFiles, null);
 
-    public static void main(String[] args) throws IOException {
+    //     for (String filePath : existingFiles) {
+    //         System.out.println("\nNow running file: " + filePath);
+    //         fileRunner(filePath);
+    //     }
+    // }
+
+    public static void main(String[] args) {
         System.out.println("\nProgram Start...");
+        File directory = new File(Constants.FOLDER_PATH);
+        System.out.println("\nFile directory: ");
+        File[] existingFiles = directory.listFiles();
+
+        if (existingFiles != null && existingFiles.length > 0) {
+            // Sort the files by size using the custom comparator
+            Arrays.sort(existingFiles, new FileSizeComparator());
+            
+            for (File file : existingFiles) {
+                String fileName = file.getName();
+                System.out.println("\nNow running file: " + fileName);
+                try {
+                    fileRunner(fileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            System.out.println("No files found in the directory.");
+        }
+    }
+
+    public static void fileRunner(String filePath) throws IOException {
         long startTime = System.currentTimeMillis();
         //---------------------------------
-        Constants.setData();
+        Constants.setData(filePath);
         System.out.println("\nAnalyzing Input Data:");
         RiskEstimator.analyzeData(Constants.DATA.getHandle());
         RiskEstimator.defineAttributes(Constants.DATA);
         RiskEstimator.setHierarchy(Constants.DATA);
-        // TesterMethods.testHierarchyBuildingSuccess("Geschlecht");
-        // TesterMethods.testDefineAttributes(Constants.DATA.getDefinition());
 
         int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
         QI_Resolution = resolutionChecker(QI_Resolution);
@@ -35,23 +71,6 @@ public class Controller {
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("Elapsed time: " + elapsedTime + " milliseconds.\n");
-
-        //----------------------------------
-        // Map<String, Integer> result = CSVFileScanner(Constants.HIERARCHY_PATH); // count the number of columns in each Hierarchy-csv-file inside the given Hierarchypath-folder. CAVE: only works if hierarchies have the same name as QI's. // TesterMethods.TestStringIntMaps(result);
-        
-        // Map<String, Integer> reorderedResult = reorderHashMap(result); // reorder the the result and adapt the keys to fit QUASI_IDENTIFIER_STRINGS. // TesterMethods.TestStringIntMaps(reorderedResult);
-
-        // int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
-        // QI_Resolution = resolutionChecker(QI_Resolution);
-
-        // int totalIterations = calculateTotalIterations(reorderedResult);
-        // System.out.println("\n------------------\nAnticipated iterations: " + totalIterations);
-        
-        // iterateQIResolution(reorderedResult, QI_Resolution, 0); // this is where the true work is done! create Iteration protocoll and calling the RiskEstimation each time.
-        // System.out.println("Anticipated iterations: " + totalIterations + "\nFinal total Iterations: " + (Constants.ITERATION_COUNT - 1));
-        // long endTime = System.currentTimeMillis();
-        // long elapsedTime = endTime - startTime;
-        // System.out.println("Elapsed time: " + elapsedTime + " milliseconds.\n");
     }
 
     // public static Map<String, Integer> CSVFileScanner(String filePath) {
