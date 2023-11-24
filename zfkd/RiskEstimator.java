@@ -13,7 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.Data;
@@ -33,6 +35,7 @@ import org.deidentifier.arx.common.TupleWrapper;
 
 import org.deidentifier.arx.criteria.AverageReidentificationRisk;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.criteria.PrivacyCriterion;
 import org.deidentifier.arx.criteria.RecursiveCLDiversity;
 import org.deidentifier.arx.risk.RiskEstimateBuilder;
 
@@ -70,13 +73,13 @@ public class RiskEstimator extends Example {
             Constants.getData().getHandle().release();
             
             
-            setGeneralizationLevel(Constants.getData()); // has to be set anew in each iteration with different values.
+            setGeneralizationLevel(); // has to be set anew in each iteration with different values.
              // Analyze Data
-            ARXConfiguration config = setConfiguration();
+            Constants.setARXConfiguration();
 
             ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
 
-            ARXResult result = anonymizer.anonymize(Constants.getData(), config);
+            ARXResult result = anonymizer.anonymize(Constants.getData(), Constants.getConfig());
             
             if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy model and parameters 
                 csvCreator3(result);
@@ -89,42 +92,6 @@ public class RiskEstimator extends Example {
             
             
             System.out.println("\nIteration Done! Back to Controller and next Iteration\n\n------------------");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // private static void printResult(ARXResult result) {
-    //         Double[] risks = getRisksFromHandle(result.getOutput());
-    //         int[] equivalenceClasses = getEquivalenceClassStatistics2(result.getOutput());
-
-    //         for (Double risk : risks) {
-    //             line.append(risk).append(", ");
-    //         }
-    // }
-   
-    private static void outputStream(ARXResult result, String outputFile) {
-  
-        try {
-            // Redirect standard output
-            PrintStream originalOut = System.out;  // Store original standard output
-            
-            // Redirect standard output to a ByteArrayOutputStream
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outputStream));
-
-            // Perform risk analysis and other operations
-            System.out.println("\n - Risk analysis:");
-            RiskAnalysis.analyzeData2(result.getOutput());
-
-            // Restore standard output
-            System.setOut(originalOut);
-
-            // Write captured output to the file
-            try (FileWriter writer = new FileWriter(Constants.ANALYSIS_FOLDER + outputFile)) {
-                // Write output
-                writer.write(outputStream.toString());
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,21 +142,21 @@ public class RiskEstimator extends Example {
             System.out.println("Setting Hierarchies to according Quasi-Identifying attributes...");
             for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
                 switch (attribute) {
-                    // case "Age":
-                    //     data.getDefinition().setAttributeType("Age", Hierarchy.create(Constants.HIERARCHY_PATH + "age.csv", StandardCharsets.UTF_8, ';'));
-                    //     break;
                     case "Age":
-                        data.getDefinition().setAttributeType(attribute, intervalBasedHierarchy(attribute));
+                        data.getDefinition().setAttributeType("Age", Hierarchy.create(Constants.HIERARCHY_PATH + "age.csv", StandardCharsets.UTF_8, ';'));
                         break;
+                    // case "Age":
+                    //     data.getDefinition().setAttributeType(attribute, intervalBasedHierarchy(attribute));
+                    //     break;
                     case "Geschlecht":
-                        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType(attribute, Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Inzidenzort":
                         // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
-                        data.getDefinition().setAttributeType("Inzidenzort", redationBasedHierarchy("Inzidenzort"));
+                        data.getDefinition().setAttributeType(attribute, redationBasedHierarchy(attribute));
                         break;
                     case "Diagnose_ICD10_Code":
-                        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", redationBasedHierarchy("Diagnose_ICD10_Code"));
+                        data.getDefinition().setAttributeType(attribute, redationBasedHierarchy(attribute));
                         break;
                     case "Geburtsdatum":
                         // date(data, "Geburtsdatum");                        
@@ -272,32 +239,24 @@ public class RiskEstimator extends Example {
         return hierarchy;
     }
 
-    private static void setGeneralizationLevel(Data data){
+    private static void setGeneralizationLevel(){
         // System.out.println("Setting Generalization Levels to choice of Quasi_Identifiers...");
-        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
-            if (index > 0 && index < QI_RESOLUTION.length){
-                data.getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
-                data.getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
-            }
-        }
-    }
+        Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
 
-    private static ARXConfiguration setConfiguration() {
-        ARXConfiguration config = ARXConfiguration.create();
-        // config.addPrivacyModel(new AverageReidentificationRisk(0.5d));
-        // config.setSuppressionLimit(0.5d);
-        config.addPrivacyModel(new KAnonymity(3));
-    
-        // config.addPrivacyModel(new HierarchicalDistanceTCloseness(Constants.SENSITIVES_CHOICE[0], 0.6d, Constants.DATA.getDefinition().getHierarchyObject(Constants.SENSITIVES_CHOICE[0])));
-        // config.addPrivacyModel(new RecursiveCLDiversity(Constants.SENSITIVES_CHOICE[0], 3d, 2));
-        //config.setQualityModel(Metric.createEntropyMetric());
-        config.setSuppressionLimit(1d); // Recommended default: 1d
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[0], 0.5d); // attribute weight
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[1], 0.3d); // attribute weight
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[2], 1d); // attribute weight
-        config.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
-        return config;
+        for (String attribute : qi) {
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
+            System.out.println("++++++++++++++++++++++++++++");
+            System.out.println("Attribute: " + attribute + ", Index:" + index + ", QI-Resolution: " + QI_RESOLUTION[index]);
+            Constants.getData().getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
+
+            // if (index > 0 && index < QI_RESOLUTION.length){
+            //     //Constants.getData().getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
+            //     Constants.getData().getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
+            //     System.out.println("Adding QI-Resolution: " + QI_RESOLUTION[index]);
+            // } else {
+            //     System.out.println("Index out of bounds: " + index);
+            // }
+        }
     }
 
     private static Double[] getRisksFromHandle(DataHandle dataHandle) {
@@ -323,39 +282,63 @@ public class RiskEstimator extends Example {
             line.append(timestamp).append(", ")
                 .append(Constants.FILE_NAME_PREFIX).append(", ")
                 .append(Constants.getData().getHandle().getNumRows()).append(", ")
+                .append(Constants.getChangesString()).append(", ") // adds String of feature changes
                 .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
-            
-            for (int i = 0; i < Constants.getQIResolution().length; i++) {
                 
-                line.append(Constants.getQIResolution()[i]);
-                
+            Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
+    
+            for (String i : Constants.QUASI_IDENTIFIER_FULL_SET) {
+                if (qi.contains(i)) {
+                    int maxGen= Constants.getData().getDefinition().getMaximumGeneralization(i);
+                    line.append(maxGen);
+                } else {
+                    line.append(-1);
+                }
                 line.append(", ");
             }
 
-
-            
             Double[] risks = getRisksFromHandle(result.getOutput());
             int[] equivalenceClasses = getEquivalenceClassStatistics2(result.getOutput());
 
-            for (Double risk : risks) {
-                String formatted = String.format("%.4f", risk);
-                line.append(formatted).append(", ");
+            // for (Double risk : risks) {
+            //     String formatted = String.format("%.4f", risk); // append the risk values with 4 digits after zero
+            //     line.append(formatted).append(", ");
 
+            // }
+            for (Double risk : risks) {
+                line.append(risk).append(", ");
             }
 
             for (int equivalenceClass : equivalenceClasses) {
-                line.append(equivalenceClass).append(", ");
+                line.append(equivalenceClass).append(", "); // append the euqivalence Class sizes: avg, max, min 
+            }
+
+            ArrayList<String> privacyModels = getPrivacyModels();
+            System.out.println("Size of privacyModels: " + privacyModels.size());
+            for (String model : privacyModels) {
+                System.out.println("Now model: " + model);
+                line.append(model).append(", ");    // append available privacy Models
             }
 
             if (line.length() > 0) {
                 line.delete(line.length() - 2, line.length());
             }
 
-
             writer.write(line.toString() + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static ArrayList<String> getPrivacyModels() {
+        ArrayList<String> modelStrings = new ArrayList<>();
+        ARXConfiguration config = Constants.getConfig();
+        for (PrivacyCriterion model : config.getPrivacyModels()) {
+            String modelString = model.toString();
+            modelStrings.add(modelString);
+        }
+        Collections.sort(modelStrings);
+        return modelStrings;
     }
 
     /**

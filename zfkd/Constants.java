@@ -5,13 +5,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.Data;
+import org.deidentifier.arx.criteria.AverageReidentificationRisk;
+import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.metric.Metric;
 
 public class Constants {
     //-----------------------zfkd-----------------------------
-    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
+    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
     public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "zfkd/test-data/"; // Foldername or path, where the input test-dataset is stored
+    private static int NUM_OF_FILES;
     // public static final String FILE_PATH = "25000_rows.csv"; // Filename of the starting dataset
     public static final String HIERARCHY_PATH = "zfkd/hierarchies/"; // Foldername or path, where the hierarchies are stored
     public static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Diagnose_ICD10_Code", "Geburtsdatum", "Diagnosedatum"}; // Will remain constant
@@ -19,16 +24,31 @@ public class Constants {
     // public static final String DATA_SIZE = extractNumberWithUnderscore(FILE_PATH); // number of rows of the initial dataset, which will be displayed in the analysis
     public static final String OUTPUT_DIRECTORY = FILE_NAME_PREFIX + "zfkd/testproducts/"; // Output-directory for precise analysis of each iteration
     public static final String ANALYSIS_FOLDER = "zfkd/risk-analysis/";
-    public static final String ANALYSIS_PATH = "ageAnalysis.csv";
+    public static final String ANALYSIS_PATH = "analysis4.csv";
+    private static final String CHANGE_STRING = "Also plus Geschlecht"; // you can insert the change you did between two analysis, to make it visible afterwards
+    private static final Integer indexOfFile = 2;
 
     public static int[] QI_RESOLUTION = new int[QUASI_IDENTIFIER_FULL_SET.length];
-    private static Data DATA = Data.create();
+    private static Data DATA;
+    private static ARXConfiguration CONFIG;
     //-------------------------------------------
 
     public static int ITERATION_COUNT = 1; 
 
+    public static String getChangesString() {
+        return CHANGE_STRING;
+    }
+
     public static void incrementIterationCount() {
         ITERATION_COUNT += 1;
+    }
+
+    public static void setNumOfFiles(int numOfFiles) {
+        NUM_OF_FILES = numOfFiles;
+    }
+
+    public static int getNumOfFiles() {
+        return NUM_OF_FILES;
     }
 
     public static void setData(String filePath) {
@@ -41,6 +61,22 @@ public class Constants {
 
     public static Data getData() {
         return DATA;
+    }
+
+    public static Integer getIndexOfFile() {
+        return indexOfFile;
+    }
+
+    public static void setARXConfiguration() {
+            CONFIG = ARXConfiguration.create();
+            CONFIG.addPrivacyModel(new AverageReidentificationRisk(0.5d));
+            CONFIG.addPrivacyModel(new KAnonymity(3));
+            CONFIG.setSuppressionLimit(1d); // Recommended default: 1d
+            CONFIG.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
+    }
+
+    public static ARXConfiguration getConfig() {
+        return CONFIG;
     }
 
     public static void setQIResolution(int[] QI_Resolution) {

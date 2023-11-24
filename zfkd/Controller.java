@@ -15,7 +15,9 @@ public class Controller {
         System.out.println("\nProgram Start...");
         File directory = new File(Constants.FOLDER_PATH);
         File[] existingFiles = directory.listFiles();
-
+        Constants.setNumOfFiles(existingFiles.length);
+        // UNBLOCK CODE BELOW TO RUN OVER ALL AVAILABLE DATASETS IN DATA-FOLDER
+        // ---------------------------------------------------------
         // if (existingFiles != null && existingFiles.length > 0) {
         //     // Sort the files by size using the custom comparator
         //     Arrays.sort(existingFiles, new FileSizeComparator());
@@ -36,14 +38,21 @@ public class Controller {
         // } else {
         //     System.out.println("No files found in the directory.");
         // }
+        // -------------------------------------------------------
+
+        // UNBLOCK CODE BELOW TO RUN ONLY OVER DATASET AT INDEX
+        // -------------------------------------------------------
         Arrays.sort(existingFiles, new FileSizeComparator());
-        String fileName = existingFiles[2].getName();
+        //String fileName = existingFiles[2].getName();
+        String fileName = existingFiles[Constants.getIndexOfFile()].getName();
+
         System.out.println("\nNow running file: " + fileName);
         try {
             fileRunner(fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // -------------------------------------------------------
     }
 
     public static void fileRunner(String filePath) throws IOException {
@@ -54,13 +63,13 @@ public class Controller {
         RiskEstimator.analyzeData(Constants.getData().getHandle());
         RiskEstimator.defineAttributes(Constants.getData());
         RiskEstimator.setHierarchy(Constants.getData());
-        TesterMethods.testHierarchyBuildingSuccess(Constants.QUASI_IDENTIFIER_CHOICE[0]);
+        // TesterMethods.testHierarchyBuildingSuccess(Constants.QUASI_IDENTIFIER_CHOICE[0]);
         // TesterMethods.testHierarchy(Constants.QUASI_IDENTIFIER_CHOICE[0]);
 
-        int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
-        QI_Resolution = resolutionChecker(QI_Resolution);
+        // int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
+        // QI_Resolution = resolutionChecker(QI_Resolution);
 
-        int totalIterations = calculateTotalIterations();
+        int totalIterations = calculateTotalIterations() * Constants.getNumOfFiles();
         System.out.println("\n------------------\nAnticipated iterations: " + totalIterations);
         resolutionRectifier();
         iterateQIResolution(0); // this is where the true work is done! create Iteration protocoll and calling the RiskEstimation each time.
@@ -68,6 +77,25 @@ public class Controller {
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("Elapsed time: " + elapsedTime + " milliseconds.\n");
+    }
+
+    private static int[] resolutionChecker(int[] QI_Resolution) {
+        for (int i = 0; i < Constants.QUASI_IDENTIFIER_FULL_SET.length; i++) {
+            String attribute = Constants.QUASI_IDENTIFIER_FULL_SET[i];
+            boolean isInQIChoice = false;
+
+            for (String choice : Constants.QUASI_IDENTIFIER_CHOICE) {
+                if (choice.equals(attribute)) {
+                    isInQIChoice = true;
+                    break;
+                }
+            }
+
+            if (!isInQIChoice) {
+                QI_Resolution[i] = -1;
+            }
+        }
+        return QI_Resolution;
     }
 
     private static void resolutionRectifier() {
@@ -116,25 +144,6 @@ public class Controller {
             iterateQIResolution(index + 1);
         }
         return;
-    }
-
-    private static int[] resolutionChecker(int[] QI_Resolution) {
-        for (int i = 0; i < Constants.QUASI_IDENTIFIER_FULL_SET.length; i++) {
-            String attribute = Constants.QUASI_IDENTIFIER_FULL_SET[i];
-            boolean isInQIChoice = false;
-
-            for (String choice : Constants.QUASI_IDENTIFIER_CHOICE) {
-                if (choice.equals(attribute)) {
-                    isInQIChoice = true;
-                    break;
-                }
-            }
-
-            if (!isInQIChoice) {
-                QI_Resolution[i] = -1;
-            }
-        }
-        return QI_Resolution;
     }
 
     private static void callRiskEstimator() {
