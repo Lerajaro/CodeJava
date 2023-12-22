@@ -245,17 +245,9 @@ public class RiskEstimator extends Example {
 
         for (String attribute : qi) {
             int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
-            System.out.println("++++++++++++++++++++++++++++");
-            System.out.println("Attribute: " + attribute + ", Index:" + index + ", QI-Resolution: " + QI_RESOLUTION[index]);
             Constants.getData().getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
+            Constants.getData().getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
 
-            // if (index > 0 && index < QI_RESOLUTION.length){
-            //     //Constants.getData().getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
-            //     Constants.getData().getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
-            //     System.out.println("Adding QI-Resolution: " + QI_RESOLUTION[index]);
-            // } else {
-            //     System.out.println("Index out of bounds: " + index);
-            // }
         }
     }
 

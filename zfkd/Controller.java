@@ -43,7 +43,6 @@ public class Controller {
         // UNBLOCK CODE BELOW TO RUN ONLY OVER DATASET AT INDEX
         // -------------------------------------------------------
         Arrays.sort(existingFiles, new FileSizeComparator());
-        //String fileName = existingFiles[2].getName();
         String fileName = existingFiles[Constants.getIndexOfFile()].getName();
 
         System.out.println("\nNow running file: " + fileName);
@@ -79,24 +78,6 @@ public class Controller {
         System.out.println("Elapsed time: " + elapsedTime + " milliseconds.\n");
     }
 
-    private static int[] resolutionChecker(int[] QI_Resolution) {
-        for (int i = 0; i < Constants.QUASI_IDENTIFIER_FULL_SET.length; i++) {
-            String attribute = Constants.QUASI_IDENTIFIER_FULL_SET[i];
-            boolean isInQIChoice = false;
-
-            for (String choice : Constants.QUASI_IDENTIFIER_CHOICE) {
-                if (choice.equals(attribute)) {
-                    isInQIChoice = true;
-                    break;
-                }
-            }
-
-            if (!isInQIChoice) {
-                QI_Resolution[i] = -1;
-            }
-        }
-        return QI_Resolution;
-    }
 
     private static void resolutionRectifier() {
         for (int i = 0; i < Constants.QUASI_IDENTIFIER_FULL_SET.length; i++) {

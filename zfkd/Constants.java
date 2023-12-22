@@ -24,8 +24,8 @@ public class Constants {
     // public static final String DATA_SIZE = extractNumberWithUnderscore(FILE_PATH); // number of rows of the initial dataset, which will be displayed in the analysis
     public static final String OUTPUT_DIRECTORY = FILE_NAME_PREFIX + "zfkd/testproducts/"; // Output-directory for precise analysis of each iteration
     public static final String ANALYSIS_FOLDER = "zfkd/risk-analysis/";
-    public static final String ANALYSIS_PATH = "analysis4.csv";
-    private static final String CHANGE_STRING = "Also plus Geschlecht"; // you can insert the change you did between two analysis, to make it visible afterwards
+    public static final String ANALYSIS_PATH = "analysis2.csv";
+    private static final String CHANGE_STRING = "Search for Inzidenzort-Error"; // you can insert the change you did between two analysis, to make it visible afterwards
     private static final Integer indexOfFile = 2;
 
     public static int[] QI_RESOLUTION = new int[QUASI_IDENTIFIER_FULL_SET.length];
@@ -69,7 +69,7 @@ public class Constants {
 
     public static void setARXConfiguration() {
             CONFIG = ARXConfiguration.create();
-            CONFIG.addPrivacyModel(new AverageReidentificationRisk(0.5d));
+            // CONFIG.addPrivacyModel(new AverageReidentificationRisk(0.5d));
             CONFIG.addPrivacyModel(new KAnonymity(3));
             CONFIG.setSuppressionLimit(1d); // Recommended default: 1d
             CONFIG.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
