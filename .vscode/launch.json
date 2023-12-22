@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "RiskEstimator",
+            "request": "launch",
+            "mainClass": "zfkd.RiskEstimator",
+            "projectName": "CodeJava_7437463e"
+        },
+        {
+            "type": "java",
             "name": "Controller",
             "request": "launch",
             "mainClass": "zfkd.Controller",

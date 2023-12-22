@@ -13,14 +13,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Set;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.deidentifier.arx.AttributeType;
 import org.deidentifier.arx.Data;
 
 import org.deidentifier.arx.DataHandle;
+import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.AttributeType.Hierarchy;
-
+import org.deidentifier.arx.aggregates.HierarchyBuilderGroupingBased.Level;
+import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased;
+import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased.Interval;
+import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased.Range;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased;
 import org.deidentifier.arx.aggregates.HierarchyBuilderRedactionBased.Order;
 
@@ -29,6 +35,7 @@ import org.deidentifier.arx.common.TupleWrapper;
 
 import org.deidentifier.arx.criteria.AverageReidentificationRisk;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.deidentifier.arx.criteria.PrivacyCriterion;
 import org.deidentifier.arx.criteria.RecursiveCLDiversity;
 import org.deidentifier.arx.risk.RiskEstimateBuilder;
 
@@ -37,6 +44,7 @@ import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.ARXPopulationModel;
 import org.deidentifier.arx.ARXResult;
+import org.deidentifier.arx.ARXLattice.ARXNode;
 import org.deidentifier.arx.ARXPopulationModel.Region;
 import org.deidentifier.arx.risk.RiskModelSampleRisks;
 import org.deidentifier.arx.risk.RiskModelSampleUniqueness;
@@ -63,97 +71,28 @@ public class RiskEstimator extends Example {
         try{
             QI_RESOLUTION = Constants.getQIResolution();
 
-            Constants.DATA.getHandle().release();
+            Constants.getData().getHandle().release();
             
             
-            setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
+            setGeneralizationLevel(); // has to be set anew in each iteration with different values.
              // Analyze Data
-            ARXConfiguration config = setConfiguration();
+            Constants.setARXConfiguration();
 
             ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
 
-            ARXResult result = anonymizer.anonymize(Constants.DATA, config);
+            ARXResult result = anonymizer.anonymize(Constants.getData(), Constants.getConfig());
             
             if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy model and parameters 
                 csvCreator3(result);
                 // System.out.println("\nOutput Statistics after Anonymization");
-                // printResult(result, Constants.DATA);
+                printResult(result, Constants.getData());
             }
             else {
                 System.out.println("No Result available. Anonymizing goal not reached.");
             }
             
-
-            System.out.println("\nAll Done! Back to Controller and next Iteration\n\n------------------");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // public static void RiskEstimation() throws IOException {
-    //     try{
-    //         QI_RESOLUTION = Constants.getQIResolution();
-
-    //         if (Constants.ITERATION_COUNT == 1) { // will set in the first iteration and then be saved for the consecutive runs.
-    //             Constants.setData();
-    //             defineAttributes(Constants.DATA); 
-    //             setHierarchy(Constants.DATA);
-    //             System.out.println("\nAnalyzing Input Data:");
-    //             analyzeData(Constants.DATA.getHandle());
-    //         }
-    //         else {
-    //             Constants.DATA.getHandle().release();
-    //         }
             
-    //         setGeneralizationLevel(Constants.DATA); // has to be set anew in each iteration with different values.
-    //          // Analyze Data
-    //         ARXConfiguration config = setConfiguration();
-
-    //         ARXAnonymizer anonymizer = new ARXAnonymizer(); // Create an instance of the anonymizer
-
-    //         ARXResult result = anonymizer.anonymize(Constants.DATA, config);
-            
-    //         if (result.isResultAvailable()) { // making sure, that the code doesn't break because of bad settings for privacy model and parameters 
-    //             csvCreator3(result);
-    //             // System.out.println("\nOutput Statistics after Anonymization");
-    //             String outputFileName = RiskAnalysisManager.getNewFileName(); // Create a new Output FileName
-    //             outputStream(result, outputFileName);
-    //             // printResult(result, Constants.DATA);
-    //         }
-    //         else {
-    //             System.out.println("No Result available. Anonymizing goal not reached.");
-    //         }
-            
-
-    //         System.out.println("\nAll Done! Back to Controller and next Iteration\n\n------------------");
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
-    
-    private static void outputStream(ARXResult result, String outputFile) {
-  
-        try {
-            // Redirect standard output
-            PrintStream originalOut = System.out;  // Store original standard output
-            
-            // Redirect standard output to a ByteArrayOutputStream
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(outputStream));
-
-            // Perform risk analysis and other operations
-            System.out.println("\n - Risk analysis:");
-            RiskAnalysis.analyzeData2(result.getOutput());
-
-            // Restore standard output
-            System.setOut(originalOut);
-
-            // Write captured output to the file
-            try (FileWriter writer = new FileWriter(Constants.ANALYSIS_FOLDER + outputFile)) {
-                // Write output
-                writer.write(outputStream.toString());
-            }
+            System.out.println("\nIteration Done! Back to Controller and next Iteration\n\n------------------");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -207,15 +146,18 @@ public class RiskEstimator extends Example {
                     case "Age":
                         data.getDefinition().setAttributeType("Age", Hierarchy.create(Constants.HIERARCHY_PATH + "age.csv", StandardCharsets.UTF_8, ';'));
                         break;
+                    // case "Age":
+                    //     data.getDefinition().setAttributeType(attribute, intervalBasedHierarchy(attribute));
+                    //     break;
                     case "Geschlecht":
-                        data.getDefinition().setAttributeType("Geschlecht", Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
+                        data.getDefinition().setAttributeType(attribute, Hierarchy.create(Constants.HIERARCHY_PATH + "geschlecht.csv", StandardCharsets.UTF_8, ';'));
                         break;
                     case "Inzidenzort":
                         // data.getDefinition().setAttributeType("Inzidenzort", Hierarchy.create(Constants.HIERARCHY_PATH + "inzidenzort.csv", StandardCharsets.UTF_8, ';'));
-                        data.getDefinition().setAttributeType("Inzidenzort", redationBasedHierarchy("Inzidenzort"));
+                        data.getDefinition().setAttributeType(attribute, redationBasedHierarchy(attribute));
                         break;
                     case "Diagnose_ICD10_Code":
-                        data.getDefinition().setAttributeType("Diagnose_ICD10_Code", redationBasedHierarchy("Diagnose_ICD10_Code"));
+                        data.getDefinition().setAttributeType(attribute, redationBasedHierarchy(attribute));
                         break;
                     case "Geburtsdatum":
                         // date(data, "Geburtsdatum");                        
@@ -241,43 +183,80 @@ public class RiskEstimator extends Example {
         HierarchyBuilderRedactionBased<?> builder = HierarchyBuilderRedactionBased.create(Order.RIGHT_TO_LEFT,
                                                                                     Order.RIGHT_TO_LEFT,
                                                                                     ' ', '*');
-        int colIndex = Constants.DATA.getHandle().getColumnIndexOf(attribute);
-        String[] values = Constants.DATA.getHandle().getDistinctValues(colIndex);
+        int colIndex = Constants.getData().getHandle().getColumnIndexOf(attribute);
+        String[] values = Constants.getData().getHandle().getDistinctValues(colIndex);
         builder.prepare(values);  
         AttributeType.Hierarchy hierarchy = builder.build();
         return hierarchy;
     }
 
-    private static void setGeneralizationLevel(Data data){
-        System.out.println("Setting Generalization Levels to choice of Quasi_Identifiers...");
-        for (String attribute : Constants.QUASI_IDENTIFIER_CHOICE) {
-            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
-            if (index > 0 && index < QI_RESOLUTION.length){
-                data.getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
-                data.getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
-            }
+    public static Hierarchy intervalBasedHierarchy(String attribute){
+        System.out.println("Establishing an interval Based Hierarchy for attribute: " + attribute + " ...");
+                // Create the builder
+        HierarchyBuilderIntervalBased<Long> builder = HierarchyBuilderIntervalBased.create(
+                                                          DataType.INTEGER,
+                                                          new Range<Long>(0l,0l,Long.MIN_VALUE / 4),
+                                                          new Range<Long>(100l,100l,Long.MAX_VALUE / 4));
+        
+        // Define base intervals
+        builder.setAggregateFunction(DataType.INTEGER.createAggregate().createIntervalFunction(true, false));
+
+        int start = 0;
+        int end = 100;
+        int step = 5;
+        
+        while (start < end) {
+            long intervalStart = start;
+            long intervalEnd = start + step;
+            builder.addInterval(intervalStart, intervalEnd);
+            start += step;
         }
+                
+        // Define grouping fanouts
+        builder.getLevel(0).addGroup(5/2);
+        builder.getLevel(1).addGroup(2);
+        //builder.getLevel(2).addGroup(2);
+
+        System.out.println("SPECIFICATION");
+        
+        // Print specification
+        for (Interval<Long> interval : builder.getIntervals()){
+            System.out.println(interval);
+        }
+
+        // Print specification
+        for (Level<Long> level : builder.getLevels()) {
+            System.out.println(level);
+        }
+        
+        int columnIndexOfAttribute = Constants.getData().getHandle().getColumnIndexOf(attribute);
+        String[] attributeDataStrings = Constants.getData().getHandle().getDistinctValues(columnIndexOfAttribute);
+
+        System.out.println("Resulting levels: "+Arrays.toString(builder.prepare(attributeDataStrings)));
+
+        builder.prepare(attributeDataStrings);
+        AttributeType.Hierarchy hierarchy = builder.build();
+
+        return hierarchy;
     }
 
-    private static ARXConfiguration setConfiguration() {
-        ARXConfiguration config = ARXConfiguration.create();
-        config.addPrivacyModel(new AverageReidentificationRisk(1d));
-        config.setSuppressionLimit(1d);
-        config.addPrivacyModel(new KAnonymity(3));
-        // config.addPrivacyModel(new HierarchicalDistanceTCloseness(Constants.SENSITIVES_CHOICE[0], 0.6d, Constants.DATA.getDefinition().getHierarchyObject(Constants.SENSITIVES_CHOICE[0])));
-        config.addPrivacyModel(new RecursiveCLDiversity(Constants.SENSITIVES_CHOICE[0], 3d, 2));
-        config.setQualityModel(Metric.createEntropyMetric());
-        config.setSuppressionLimit(1d); // Recommended default: 1d
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[0], 0.5d); // attribute weight
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[1], 0.3d); // attribute weight
-        //config.setAttributeWeight(Constants.QUASI_IDENTIFIER_CHOICE[2], 1d); // attribute weight
-        config.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
-        return config;
+    private static void setGeneralizationLevel(){
+        // System.out.println("Setting Generalization Levels to choice of Quasi_Identifiers...");
+        Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
+
+        for (String attribute : qi) {
+            int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
+            int maxValue = QI_RESOLUTION[index];
+
+            Constants.getData().getDefinition().setMaximumGeneralization(attribute, maxValue);
+            Constants.getData().getDefinition().setMinimumGeneralization(attribute, maxValue);
+
+        }
     }
 
     private static Double[] getRisksFromHandle(DataHandle dataHandle) {
         // Perform risk analysis and other operations
-        System.out.println("\nAnalyzing Risks from current Data Handle...");
+        // System.out.println("\nAnalyzing Risks from current Data Handle...");
         ARXPopulationModel populationmodel = ARXPopulationModel.create(Region.GERMANY);
         RiskEstimateBuilder builder = dataHandle.getRiskEstimator(populationmodel);
         RiskModelSampleRisks sampleReidentifiationRisk = builder.getSampleBasedReidentificationRisk();
@@ -295,38 +274,98 @@ public class RiskEstimator extends Example {
             StringBuilder line = new StringBuilder();
             Date date = new Date();
             Timestamp timestamp = new Timestamp(date.getTime());
-            line.append(timestamp).append(", ")
-                .append(Constants.FILE_NAME_PREFIX).append(", ")
-                .append(Constants.DATA.getHandle().getNumRows()).append(", ")
-                .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
-            
-            for (int i = 0; i < Constants.getQIResolution().length; i++) {
-                
-                line.append(Constants.getQIResolution()[i]);
-                
-                line.append(", ");
-            }
-            
             Double[] risks = getRisksFromHandle(result.getOutput());
             int[] equivalenceClasses = getEquivalenceClassStatistics2(result.getOutput());
+            ARXNode node = result.getGlobalOptimum();
+            // UNCOMMENT FOR BASIC INFORMATION
+            // ---------------------------------------
+            // line.append(timestamp).append(", ")
+            //     .append(Constants.FILE_NAME_PREFIX).append(", ")
+            //     .append(Constants.getData().getHandle().getNumRows()).append(", ")
+            //     .append(Constants.getChangesString()).append(", ") // adds String of feature changes
+            //     .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
+            //     ;
+            // --------------------------------------
+            
+            // UNCOMMENT FOR ALL QUASI-IDENTIFIERS WITH GENERALIZATION LEVELS
+            // ----------------------------------------
+            // Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
 
-            for (Double risk : risks) {
-                line.append(risk).append(", ");
+            // for (String i : Constants.QUASI_IDENTIFIER_FULL_SET) {
+            //     if (qi.contains(i)) {
+            //         int maxGen= Constants.getData().getDefinition().getMaximumGeneralization(i);
+            //         line.append(maxGen);
+            //     } else {
+            //         line.append(-1);
+            //     }
+            //     line.append(", ");
+            // }
+            // ----------------------------------------
+
+            for (String qi : Constants.QUASI_IDENTIFIER_CHOICE) {
+                //int minGen= Constants.getData().getDefinition().getMinimumGeneralization(qi);
+                //line.append(minGen).append(", ");
+                line.append(node.getGeneralization(qi)).append(", "); // Checking the Generalization level of 
+
             }
 
-            for (int equivalenceClass : equivalenceClasses) {
-                line.append(equivalenceClass).append(", ");
-            }
+            line.append(risks[0]).append(", "); // Average Risk
+            line.append(equivalenceClasses[0]).append(", "); // Average EquivalenceClass Size
+            line.append(node.getLowestScore()).append( ", "); // information loss?
+            line.append(node.getHighestScore()).append(", "); // inf loss highscore
+            line.append(Constants.getData().getHandle().getNumRows()).append(", ");
+            line.append(Constants.getChangesString()).append(", "); // adds String of feature changes
+
+
+            // UNCOMMENT FOR ALL RISKS ROUNDED TO 4 DIGITS
+            // -------------------------------------------
+            // for (Double risk : risks) {
+            //     String formatted = String.format("%.4f", risk); // append the risk values with 4 digits after zero
+            //     line.append(formatted).append(", ");
+            // }
+            // -------------------------------------------
+
+            // UNCOMMENT FOR ALL RISKS WITHOUT ROUNDING
+            // -------------------------------------------
+            // for (Double risk : risks) {
+            //     line.append(risk).append(", ");
+            // }
+            // -------------------------------------------
+            // UNCOMMENT FOR ALL EQUIVALENCE CLASS STATISTICS
+            // ------------------------------------------
+            // for (int equivalenceClass : equivalenceClasses) {
+            //     line.append(equivalenceClass).append(", "); // append the euqivalence Class sizes: avg, max, min 
+            // }
+            // ------------------------------------------
+
+            // UNCOMMENT FOR PRIVACY MODELS
+            // ------------------------------------------
+            // ArrayList<String> privacyModels = getPrivacyModels();
+            // for (String model : privacyModels) {
+            //     System.out.println("Now model: " + model);
+            //     line.append(model).append(", ");    // append available privacy Models
+            // }
+            // -----------------------------------------
 
             if (line.length() > 0) {
                 line.delete(line.length() - 2, line.length());
             }
 
-
             writer.write(line.toString() + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static ArrayList<String> getPrivacyModels() {
+        ArrayList<String> modelStrings = new ArrayList<>();
+        ARXConfiguration config = Constants.getConfig();
+        for (PrivacyCriterion model : config.getPrivacyModels()) {
+            String modelString = model.toString();
+            modelStrings.add(modelString);
+        }
+        Collections.sort(modelStrings);
+        return modelStrings;
     }
 
     /**
