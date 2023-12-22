@@ -13,20 +13,20 @@ import org.deidentifier.arx.metric.Metric;
 
 public class Constants {
     //-----------------------zfkd-----------------------------
-    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Age", "Geschlecht", "Inzidenzort"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
+    public static final String[] QUASI_IDENTIFIER_CHOICE = {"Geschlecht", "Age"}; // Change according to needed choice of Quasi-Identifiers. Pick from QUASI_IDENTIFIER_FULL_SET. Mind spelling!
     public static final String[] SENSITIVES_CHOICE = {};
     public static final String FOLDER_PATH = "zfkd/test-data/"; // Foldername or path, where the input test-dataset is stored
     private static int NUM_OF_FILES;
     // public static final String FILE_PATH = "25000_rows.csv"; // Filename of the starting dataset
     public static final String HIERARCHY_PATH = "zfkd/hierarchies/"; // Foldername or path, where the hierarchies are stored
-    public static final String[] QUASI_IDENTIFIER_FULL_SET = {"Age", "Geschlecht", "Inzidenzort", "Diagnose_ICD10_Code", "Geburtsdatum", "Diagnosedatum"}; // Will remain constant
+    public static final String[] QUASI_IDENTIFIER_FULL_SET = {"Geschlecht", "Age", "Inzidenzort", "Diagnose_ICD10_Code", "Geburtsdatum", "Diagnosedatum"}; // Will remain constant
     public static final String FILE_NAME_PREFIX = "zfkd_"; // extracts the first word of the input Filepath as an indicator for the type of data to be used further on.
     // public static final String DATA_SIZE = extractNumberWithUnderscore(FILE_PATH); // number of rows of the initial dataset, which will be displayed in the analysis
     public static final String OUTPUT_DIRECTORY = FILE_NAME_PREFIX + "zfkd/testproducts/"; // Output-directory for precise analysis of each iteration
     public static final String ANALYSIS_FOLDER = "zfkd/risk-analysis/";
     public static final String ANALYSIS_PATH = "analysis2.csv";
-    private static final String CHANGE_STRING = "Search for Inzidenzort-Error"; // you can insert the change you did between two analysis, to make it visible afterwards
-    private static final Integer indexOfFile = 2;
+    private static final String CHANGE_STRING = "switched age and sex"; // you can insert the change you did between two analysis, to make it visible afterwards
+    private static final Integer indexOfFile = 6;
 
     public static int[] QI_RESOLUTION = new int[QUASI_IDENTIFIER_FULL_SET.length];
     private static Data DATA;
@@ -69,10 +69,10 @@ public class Constants {
 
     public static void setARXConfiguration() {
             CONFIG = ARXConfiguration.create();
-            // CONFIG.addPrivacyModel(new AverageReidentificationRisk(0.5d));
-            CONFIG.addPrivacyModel(new KAnonymity(3));
-            CONFIG.setSuppressionLimit(1d); // Recommended default: 1d
-            CONFIG.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
+            CONFIG.addPrivacyModel(new AverageReidentificationRisk(1d));
+            CONFIG.addPrivacyModel(new KAnonymity(20));
+            CONFIG.setSuppressionLimit(0.5d); // Recommended default: 1d
+            // CONFIG.setQualityModel(Metric.createLossMetric(0.5d)); // suppression/generalization-factor
     }
 
     public static ARXConfiguration getConfig() {

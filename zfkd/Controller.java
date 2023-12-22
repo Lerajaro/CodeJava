@@ -62,11 +62,8 @@ public class Controller {
         RiskEstimator.analyzeData(Constants.getData().getHandle());
         RiskEstimator.defineAttributes(Constants.getData());
         RiskEstimator.setHierarchy(Constants.getData());
-        // TesterMethods.testHierarchyBuildingSuccess(Constants.QUASI_IDENTIFIER_CHOICE[0]);
-        // TesterMethods.testHierarchy(Constants.QUASI_IDENTIFIER_CHOICE[0]);
-
-        // int[] QI_Resolution = new int[Constants.QUASI_IDENTIFIER_FULL_SET.length]; // creates an integer array with as many empty values as the full set of QI's has attributes.
-        // QI_Resolution = resolutionChecker(QI_Resolution);
+        // TesterMethods.printHierarchyToCSV("Age");
+        // TesterMethods.printHierarchyToCSV("Geschlecht");
 
         int totalIterations = calculateTotalIterations() * Constants.getNumOfFiles();
         System.out.println("\n------------------\nAnticipated iterations: " + totalIterations);

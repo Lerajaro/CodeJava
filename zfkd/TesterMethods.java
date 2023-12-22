@@ -6,6 +6,10 @@ import org.deidentifier.arx.AttributeType;
 
 
 import java.util.Map;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class TesterMethods {
@@ -69,6 +73,29 @@ public class TesterMethods {
         System.out.println("\nTesting Hierarchy for attriibute: " + attribute);
         String[][] hierarchyStringArray = Constants.getData().getDefinition().getHierarchy(attribute);
         printStringArrayOfArrays(hierarchyStringArray);
+    }
+
+    public static void printHierarchyToCSV(String attribute) {
+        String[][] hierarchyStringArray = Constants.getData().getDefinition().getHierarchy(attribute);
+        if (hierarchyStringArray != null) {
+            String csvFileName = "zfkd/hierarchy-test-builds/" + attribute.toLowerCase() + ".csv"; // Change this to the desired CSV file name
+            try (PrintWriter writer = new PrintWriter(new FileWriter(new File(csvFileName)))) {
+                for (String[] row : hierarchyStringArray) {
+                    for (int i = 0; i < row.length; i++) {
+                        writer.print(row[i]);
+                        if (i < row.length - 1) {
+                            writer.print(",");
+                        }
+                    }
+                    writer.println(); // Move to the next line for the next row
+                }
+                System.out.println("CSV file has been created successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Hierarchy String array is null");
+        }
     }
 
     public static void testAttribute(String attribute) {

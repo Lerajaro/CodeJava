@@ -44,6 +44,7 @@ import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
 import org.deidentifier.arx.ARXPopulationModel;
 import org.deidentifier.arx.ARXResult;
+import org.deidentifier.arx.ARXLattice.ARXNode;
 import org.deidentifier.arx.ARXPopulationModel.Region;
 import org.deidentifier.arx.risk.RiskModelSampleRisks;
 import org.deidentifier.arx.risk.RiskModelSampleUniqueness;
@@ -245,8 +246,10 @@ public class RiskEstimator extends Example {
 
         for (String attribute : qi) {
             int index = Arrays.asList(Constants.QUASI_IDENTIFIER_FULL_SET).indexOf(attribute);
-            Constants.getData().getDefinition().setMaximumGeneralization(attribute, QI_RESOLUTION[index]);
-            Constants.getData().getDefinition().setMinimumGeneralization(attribute, QI_RESOLUTION[index]);
+            int maxValue = QI_RESOLUTION[index];
+
+            Constants.getData().getDefinition().setMaximumGeneralization(attribute, maxValue);
+            Constants.getData().getDefinition().setMinimumGeneralization(attribute, maxValue);
 
         }
     }
@@ -271,46 +274,78 @@ public class RiskEstimator extends Example {
             StringBuilder line = new StringBuilder();
             Date date = new Date();
             Timestamp timestamp = new Timestamp(date.getTime());
-            line.append(timestamp).append(", ")
-                .append(Constants.FILE_NAME_PREFIX).append(", ")
-                .append(Constants.getData().getHandle().getNumRows()).append(", ")
-                .append(Constants.getChangesString()).append(", ") // adds String of feature changes
-                .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
-                
-            Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
-    
-            for (String i : Constants.QUASI_IDENTIFIER_FULL_SET) {
-                if (qi.contains(i)) {
-                    int maxGen= Constants.getData().getDefinition().getMaximumGeneralization(i);
-                    line.append(maxGen);
-                } else {
-                    line.append(-1);
-                }
-                line.append(", ");
-            }
-
             Double[] risks = getRisksFromHandle(result.getOutput());
             int[] equivalenceClasses = getEquivalenceClassStatistics2(result.getOutput());
+            ARXNode node = result.getGlobalOptimum();
+            // UNCOMMENT FOR BASIC INFORMATION
+            // ---------------------------------------
+            // line.append(timestamp).append(", ")
+            //     .append(Constants.FILE_NAME_PREFIX).append(", ")
+            //     .append(Constants.getData().getHandle().getNumRows()).append(", ")
+            //     .append(Constants.getChangesString()).append(", ") // adds String of feature changes
+            //     .append(result.getGlobalOptimum().getLowestScore()).append( ", "); // information loss?
+            //     ;
+            // --------------------------------------
+            
+            // UNCOMMENT FOR ALL QUASI-IDENTIFIERS WITH GENERALIZATION LEVELS
+            // ----------------------------------------
+            // Set<String> qi = Constants.getData().getDefinition().getQuasiIdentifiersWithGeneralization();
 
+            // for (String i : Constants.QUASI_IDENTIFIER_FULL_SET) {
+            //     if (qi.contains(i)) {
+            //         int maxGen= Constants.getData().getDefinition().getMaximumGeneralization(i);
+            //         line.append(maxGen);
+            //     } else {
+            //         line.append(-1);
+            //     }
+            //     line.append(", ");
+            // }
+            // ----------------------------------------
+
+            for (String qi : Constants.QUASI_IDENTIFIER_CHOICE) {
+                //int minGen= Constants.getData().getDefinition().getMinimumGeneralization(qi);
+                //line.append(minGen).append(", ");
+                line.append(node.getGeneralization(qi)).append(", "); // Checking the Generalization level of 
+
+            }
+
+            line.append(risks[0]).append(", "); // Average Risk
+            line.append(equivalenceClasses[0]).append(", "); // Average EquivalenceClass Size
+            line.append(node.getLowestScore()).append( ", "); // information loss?
+            line.append(node.getHighestScore()).append(", "); // inf loss highscore
+            line.append(Constants.getData().getHandle().getNumRows()).append(", ");
+            line.append(Constants.getChangesString()).append(", "); // adds String of feature changes
+
+
+            // UNCOMMENT FOR ALL RISKS ROUNDED TO 4 DIGITS
+            // -------------------------------------------
             // for (Double risk : risks) {
             //     String formatted = String.format("%.4f", risk); // append the risk values with 4 digits after zero
             //     line.append(formatted).append(", ");
-
             // }
-            for (Double risk : risks) {
-                line.append(risk).append(", ");
-            }
+            // -------------------------------------------
 
-            for (int equivalenceClass : equivalenceClasses) {
-                line.append(equivalenceClass).append(", "); // append the euqivalence Class sizes: avg, max, min 
-            }
+            // UNCOMMENT FOR ALL RISKS WITHOUT ROUNDING
+            // -------------------------------------------
+            // for (Double risk : risks) {
+            //     line.append(risk).append(", ");
+            // }
+            // -------------------------------------------
+            // UNCOMMENT FOR ALL EQUIVALENCE CLASS STATISTICS
+            // ------------------------------------------
+            // for (int equivalenceClass : equivalenceClasses) {
+            //     line.append(equivalenceClass).append(", "); // append the euqivalence Class sizes: avg, max, min 
+            // }
+            // ------------------------------------------
 
-            ArrayList<String> privacyModels = getPrivacyModels();
-            System.out.println("Size of privacyModels: " + privacyModels.size());
-            for (String model : privacyModels) {
-                System.out.println("Now model: " + model);
-                line.append(model).append(", ");    // append available privacy Models
-            }
+            // UNCOMMENT FOR PRIVACY MODELS
+            // ------------------------------------------
+            // ArrayList<String> privacyModels = getPrivacyModels();
+            // for (String model : privacyModels) {
+            //     System.out.println("Now model: " + model);
+            //     line.append(model).append(", ");    // append available privacy Models
+            // }
+            // -----------------------------------------
 
             if (line.length() > 0) {
                 line.delete(line.length() - 2, line.length());
